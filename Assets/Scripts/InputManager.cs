@@ -9,7 +9,7 @@ public class InputManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             StackManager.instance.Stop();
-            StackManager.instance.Spawn();
+            // StackManager.instance.Spawn();
         }
     }
 }
