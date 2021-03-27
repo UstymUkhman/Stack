@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class CubeCut : MonoBehaviour
 {
-	public static bool Cut(Transform victim, Vector3 _pos)
+	public static bool Cut(Transform victim, float _pos)
 	{
-		Vector3 pos = new Vector3(_pos.x, victim.position.y, victim.position.z);
+		Vector3 pos = new Vector3(_pos, victim.position.y, victim.position.z);
         Vector3 victimScale = victim.localScale;
 
 		float distance = Vector3.Distance(victim.position, pos);

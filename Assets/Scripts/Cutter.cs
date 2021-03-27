@@ -18,6 +18,12 @@ public class Cutter : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        CubeCut.Cut(collision.transform, transform.position);
+        Vector3 pos = transform.position;
+
+        // pos.x = pos.x + transform.localScale.x / 2;
+
+        pos.x = pos.x - transform.localScale.x / 2;
+
+        CubeCut.Cut(collision.transform, pos.x);
     }
 }
