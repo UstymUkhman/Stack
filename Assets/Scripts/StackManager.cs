@@ -9,16 +9,17 @@ public class StackManager : MonoBehaviour
     private GameObject platformPrefab;
     public static StackManager instance;
 
-    private Quaternion rotation = Quaternion.Euler(0, 0, 0);
-
+    private PlatformCutter platformCutter;
     private PlatfomManager platfomManager;
-    private GameObject lastPlatform;
-    private int platforms = 0;
 
+    private GameObject lastPlatform;
     private bool collided = false;
+    private int platforms = 0;
 
     void Awake()
     {
+        platformCutter = GetComponent<PlatformCutter>();
+
         if (instance is null)
         {
             instance = this;
@@ -43,7 +44,7 @@ public class StackManager : MonoBehaviour
             ? new Vector3(0, 1, 1.5f)
             : new Vector3(-1.5f, 1, 0);
 
-        lastPlatform = Instantiate(platformPrefab, position, rotation, transform);
+        lastPlatform = Instantiate(platformPrefab, position, Quaternion.identity, transform);
         platfomManager = lastPlatform.GetComponent<PlatfomManager>();
         platfomManager.SetDirection(moveLeft);
 
@@ -59,65 +60,29 @@ public class StackManager : MonoBehaviour
     {
         if (collided) return;
 
-        Vector3 pos = transform.position;
         bool moveLeft = Convert.ToBoolean(platforms % 2);
 
-        float offset = moveLeft
+        float offset = !moveLeft
             ? collision.transform.localPosition.z
             : collision.transform.localPosition.x;
 
         if (offset == 0)
         {
             Debug.Log("Perfect!");
+            return;
         }
-        else if (offset > 0)
+
+        int half = Math.Sign(offset) * 2;
+
+        if (!moveLeft)
         {
-            pos.x = pos.x + transform.localScale.x / 2;
+            float x = transform.position.x + transform.localScale.x / half;
+            collided = platformCutter.CutVertically(collision.transform, x);
         }
         else
         {
-            pos.x = pos.x - transform.localScale.x / 2;
+            float z = transform.position.z + transform.localScale.z / -half;
+            collided = platformCutter.CutHorizontally(collision.transform, z);
         }
-
-        collided = CutPlatform(collision.transform, pos.x);
-
-        Debug.Log("collided: " + collided);
-    }
-
-    private bool CutPlatform(Transform victim, float _posX)
-    {
-        Vector3 victimScale = victim.localScale;
-        Material mat = victim.GetComponent<MeshRenderer>().material;
-        Vector3 pos = new Vector3(_posX, victim.position.y, victim.position.z);
-
-        float distance = Vector3.Distance(victim.position, pos);
-        if (distance >= victimScale.x / 2) return false;
-
-        Vector3 leftPoint = victim.position - Vector3.right * victimScale.x / 2;
-        Vector3 rightPoint = victim.position + Vector3.right * victimScale.x / 2;
-
-        Destroy(victim.gameObject);
-
-        GameObject rightSideObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        rightSideObj.transform.position = (rightPoint + pos) / 2;
-        rightSideObj.transform.parent = transform;
-
-        float rightWidth = Vector3.Distance(pos, rightPoint);
-        rightSideObj.transform.localScale = new Vector3(rightWidth, victimScale.y, victimScale.z);
-
-        rightSideObj.GetComponent<MeshRenderer>().material = mat;
-        rightSideObj.AddComponent<Rigidbody>().mass = 100f;
-
-        GameObject leftSideObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        leftSideObj.transform.position = (leftPoint + pos) / 2;
-        leftSideObj.transform.parent = transform;
-
-        float leftWidth = Vector3.Distance(pos, leftPoint);
-        leftSideObj.transform.localScale = new Vector3(leftWidth, victimScale.y, victimScale.z);
-
-        leftSideObj.GetComponent<MeshRenderer>().material = mat;
-        leftSideObj.AddComponent<Rigidbody>().mass = 100f;
-
-        return true;
     }
 }
