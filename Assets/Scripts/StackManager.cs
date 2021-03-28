@@ -9,6 +9,9 @@ public class StackManager : MonoBehaviour
     private GameObject staticPrefab;
 
     [SerializeField]
+    private GameObject cuttedPrefab;
+
+    [SerializeField]
     private GameObject dynamicPrefab;
 
     private DynamicPlatform dynamicPlatform;
@@ -19,7 +22,12 @@ public class StackManager : MonoBehaviour
 
     void Start()
     {
-        SpawnStatic();
+        GameObject platform = Instantiate(staticPrefab, Vector3.zero, Quaternion.identity, transform);
+        staticPlatform = platform.GetComponent<StaticPlatform>();
+
+        staticPlatform.cuttedPrefab = cuttedPrefab;
+        staticPlatform.index = platforms;
+        SpawnDynamicPlatform();
     }
 
     void Update()
@@ -27,19 +35,32 @@ public class StackManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             dynamicPlatform.Stop();
-            // Spawn();
+            Invoke("SpawnNewPlatform", 1.0f);
         }
     }
 
-    private void SpawnStatic()
+    private void SpawnNewPlatform()
     {
-        GameObject platform = Instantiate(staticPrefab, Vector3.zero, Quaternion.identity, transform);
-        staticPlatform = platform.GetComponent<StaticPlatform>();
-        SpawnDynamic();
+        Transform platform = transform.Find("Platform" + platforms);
+
+        SpawnDynamicPlatform();
+
+        if (platform != null)
+        {
+            staticPlatform = platform.GetComponent<StaticPlatform>();
+            lastPlatform.transform.localScale = platform.localScale;
+
+            dynamicPlatform.offset = Convert.ToBoolean(platforms % 2)
+                ? platform.localPosition.x : platform.localPosition.z;
+
+            staticPlatform.cuttedPrefab = cuttedPrefab;
+            staticPlatform.index = platforms - 1;
+        }
     }
 
-    private void SpawnDynamic()
+    private void SpawnDynamicPlatform()
     {
+        int nextPlatform = platforms + 1;
         bool moveLeft = !Convert.ToBoolean(platforms % 2);
 
         Vector3 position = moveLeft
@@ -50,13 +71,8 @@ public class StackManager : MonoBehaviour
         dynamicPlatform = lastPlatform.GetComponent<DynamicPlatform>();
 
         dynamicPlatform.SetDirection(moveLeft);
-        staticPlatform.index = platforms;
+        dynamicPlatform.index = nextPlatform;
 
-        /*position.x = 0f;
-        position.y = ++platforms * 0.1f;
-        position.z = 0f;
-
-        transform.position = position;*/
-        platforms++;
+        platforms = nextPlatform;
     }
 }

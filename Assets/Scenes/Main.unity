@@ -159,6 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   staticPrefab: {fileID: 2588218779005478765, guid: b08bc56e6fd9edf48b0e04ce996ea866, type: 3}
+  cuttedPrefab: {fileID: 8520240970998026953, guid: 04e366d4cd4f1e74a94daea8a918d610, type: 3}
   dynamicPrefab: {fileID: 1346835744450912471, guid: 764d9bd060edffa4e9b93adbc90521a2, type: 3}
 --- !u!65 &626551787
 BoxCollider:
@@ -586,5 +587,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2588218779005478770, guid: b08bc56e6fd9edf48b0e04ce996ea866, type: 3}
+      propertyPath: cuttedPrefab
+      value: 
+      objectReference: {fileID: 8520240970998026953, guid: 04e366d4cd4f1e74a94daea8a918d610, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b08bc56e6fd9edf48b0e04ce996ea866, type: 3}

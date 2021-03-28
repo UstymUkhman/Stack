@@ -1,11 +1,15 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public class DynamicPlatform : MonoBehaviour
 {
-    private Animator animator;
     private Rigidbody rigidBody;
+    private Animator animator;
+
+    public float offset = 0.0f;
+    public int index = 0;
 
     void Awake()
     {
@@ -16,9 +20,19 @@ public class DynamicPlatform : MonoBehaviour
     void Start()
     {
         animator.SetTrigger("Move");
-
         rigidBody.isKinematic = true;
         rigidBody.detectCollisions = false;
+    }
+
+    void LateUpdate()
+    {
+        bool left = Convert.ToBoolean(index % 2);
+
+        gameObject.transform.localPosition = new Vector3(
+            left ? offset : gameObject.transform.localPosition.x,
+            index,
+            left ? gameObject.transform.localPosition.z : offset
+        );
     }
 
     public void SetDirection(bool left)
