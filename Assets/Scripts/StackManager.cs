@@ -6,37 +6,39 @@ using System.Collections.Generic;
 public class StackManager : MonoBehaviour
 {
     [SerializeField]
-    private GameObject platformPrefab;
-    public static StackManager instance;
+    private GameObject staticPrefab;
 
-    private PlatformCutter platformCutter;
-    private PlatfomManager platfomManager;
+    [SerializeField]
+    private GameObject dynamicPrefab;
+
+    private DynamicPlatform dynamicPlatform;
+    private StaticPlatform staticPlatform;
 
     private GameObject lastPlatform;
-    private bool collided = false;
     private int platforms = 0;
-
-    void Awake()
-    {
-        platformCutter = GetComponent<PlatformCutter>();
-
-        if (instance is null)
-        {
-            instance = this;
-        }
-    }
 
     void Start()
     {
-        Spawn();
+        SpawnStatic();
     }
 
-    public void Stop()
+    void Update()
     {
-        platfomManager.Stop();
+        if (Input.GetMouseButtonDown(0))
+        {
+            dynamicPlatform.Stop();
+            // Spawn();
+        }
     }
 
-    public void Spawn()
+    private void SpawnStatic()
+    {
+        GameObject platform = Instantiate(staticPrefab, Vector3.zero, Quaternion.identity, transform);
+        staticPlatform = platform.GetComponent<StaticPlatform>();
+        SpawnDynamic();
+    }
+
+    private void SpawnDynamic()
     {
         bool moveLeft = !Convert.ToBoolean(platforms % 2);
 
@@ -44,9 +46,11 @@ public class StackManager : MonoBehaviour
             ? new Vector3(0, 1, 1.5f)
             : new Vector3(-1.5f, 1, 0);
 
-        lastPlatform = Instantiate(platformPrefab, position, Quaternion.identity, transform);
-        platfomManager = lastPlatform.GetComponent<PlatfomManager>();
-        platfomManager.SetDirection(moveLeft);
+        lastPlatform = Instantiate(dynamicPrefab, position, Quaternion.identity, transform);
+        dynamicPlatform = lastPlatform.GetComponent<DynamicPlatform>();
+
+        dynamicPlatform.SetDirection(moveLeft);
+        staticPlatform.index = platforms;
 
         /*position.x = 0f;
         position.y = ++platforms * 0.1f;
@@ -54,35 +58,5 @@ public class StackManager : MonoBehaviour
 
         transform.position = position;*/
         platforms++;
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collided) return;
-
-        bool moveLeft = Convert.ToBoolean(platforms % 2);
-
-        float offset = !moveLeft
-            ? collision.transform.localPosition.z
-            : collision.transform.localPosition.x;
-
-        if (offset == 0)
-        {
-            Debug.Log("Perfect!");
-            return;
-        }
-
-        int half = Math.Sign(offset) * 2;
-
-        if (!moveLeft)
-        {
-            float x = transform.position.x + transform.localScale.x / half;
-            collided = platformCutter.CutVertically(collision.transform, x);
-        }
-        else
-        {
-            float z = transform.position.z + transform.localScale.z / -half;
-            collided = platformCutter.CutHorizontally(collision.transform, z);
-        }
     }
 }
