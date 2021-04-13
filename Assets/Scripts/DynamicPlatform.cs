@@ -8,7 +8,7 @@ public class DynamicPlatform : MonoBehaviour
     private Rigidbody rigidBody;
     private Animator animator;
 
-    public float offset = 0.0f;
+    // public float offset = 0.0f;
     public int index = 0;
 
     void Awake()
@@ -24,7 +24,7 @@ public class DynamicPlatform : MonoBehaviour
         rigidBody.detectCollisions = false;
     }
 
-    void LateUpdate()
+    /* void LateUpdate()
     {
         bool left = Convert.ToBoolean(index % 2);
 
@@ -32,6 +32,17 @@ public class DynamicPlatform : MonoBehaviour
             left ? offset : gameObject.transform.localPosition.x,
             index,
             left ? gameObject.transform.localPosition.z : offset
+        );
+    } */
+
+    void LateUpdate()
+    {
+        bool left = Convert.ToBoolean(index % 2);
+
+        gameObject.transform.localPosition = new Vector3(
+            left ? 0.0f : gameObject.transform.localPosition.x,
+            index,
+            left ? gameObject.transform.localPosition.z : 0.0f
         );
     }
 

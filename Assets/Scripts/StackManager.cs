@@ -35,11 +35,12 @@ public class StackManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             dynamicPlatform.Stop();
-            Invoke("SpawnNewPlatform", 1.0f);
+            // Invoke("SpawnNewPlatform", 1.0f);
+            // Invoke("SpawnDynamicPlatform", 1.0f);
         }
     }
 
-    private void SpawnNewPlatform()
+    /* private void SpawnNewPlatform()
     {
         Transform platform = transform.Find("Platform" + platforms);
 
@@ -56,7 +57,7 @@ public class StackManager : MonoBehaviour
             staticPlatform.cuttedPrefab = cuttedPrefab;
             staticPlatform.index = platforms - 1;
         }
-    }
+    } */
 
     private void SpawnDynamicPlatform()
     {

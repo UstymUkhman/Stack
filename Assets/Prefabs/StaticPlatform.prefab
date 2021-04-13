@@ -108,5 +108,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5e7cd455af028a40bfaa157335d0a2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cuttedPrefab: {fileID: 8520240970998026953, guid: 04e366d4cd4f1e74a94daea8a918d610, type: 3}
   index: 0
-  sign: 0
