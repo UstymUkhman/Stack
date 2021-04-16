@@ -37,6 +37,7 @@ public class StackManager : MonoBehaviour
     private void SpawnStaticPlatform(Vector3 position = default, float width = 1.0f, float depth = 1.0f)
     {
         GameObject platform = Instantiate(staticPrefab, position, Quaternion.identity, transform);
+        platform.transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.green);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
         platforms.Add(platform);
     }
@@ -52,6 +53,13 @@ public class StackManager : MonoBehaviour
         dynamicPlatformManager.Move();
 
         platforms.Add(platform);
+    }
+
+    private void SpawnCuttedPlatform(Vector3 position, float width, float depth)
+    {
+        GameObject platform = Instantiate(staticPrefab, position, Quaternion.identity, transform);
+        platform.transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.blue);
+        platform.transform.localScale = new Vector3(width, platformHeight, depth);
     }
 
     private void CalculatePlatformDistance()
@@ -75,18 +83,23 @@ public class StackManager : MonoBehaviour
             float width = dynamicPlatform.transform.localScale.x - (left ? distance : 0.0f);
             float depth = dynamicPlatform.transform.localScale.z - (left ? 0.0f : distance);
 
-            Vector3 position = GetNewPlatformPosition(
+            float offset = CalculateStaticPlatform(
                 staticPlatform.transform,
                 dynamicPlatform.transform.position,
                 width, depth, left
             );
 
-            SpawnStaticPlatform(position, width, depth);
+            CalculateCuttedPlatform(
+                dynamicPlatform.transform,
+                staticPlatform.transform.position,
+                width, depth, left
+            );
+
             platforms.Remove(dynamicPlatform);
             Destroy(dynamicPlatform);
 
             SpawnDynamicPlatform(width, depth);
-            dynamicPlatformManager.Offset = left ? position.x : position.z;
+            dynamicPlatformManager.Offset = offset;
         }
         else
         {
@@ -94,26 +107,43 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    private Vector3 GetNewPlatformPosition(Transform staticTransform, Vector3 position, float width, float depth, bool left)
+    private float CalculateStaticPlatform(Transform staticTransform, Vector3 dynamicPosition, float width, float depth, bool left)
     {
-        float px = staticTransform.position.x;
-        float pz = staticTransform.position.z;
+        float offset = (left ? staticTransform.localScale.x - width : staticTransform.localScale.z - depth) /
+            GetPlatfromOffset(staticTransform.position, dynamicPosition, -4.0f, 2.0f);
 
-        float offset = (left
-            ? staticTransform.localScale.x - width
-            : staticTransform.localScale.z - depth
-        ) / (
-            (float) System.Convert.ToInt32(
-                position.x < px || position.z < pz
-            ) * -4.0f + 2.0f
+        Vector3 position = new Vector3(
+            left ? staticTransform.position.x + offset : staticTransform.position.x,
+            dynamicPosition.y,
+            left ? staticTransform.position.z : staticTransform.position.z + offset
         );
 
-        return new Vector3(
-            left ? px + offset : px,
-            position.y,
-            left ? pz : pz + offset
-        );
+        SpawnStaticPlatform(position, width, depth);
+        return left ? position.x : position.z;
     }
+
+    private void CalculateCuttedPlatform(Transform dynamicTransform, Vector3 staticPosition, float width, float depth, bool left)
+    {
+        float discartedWidth = left ? dynamicTransform.localScale.x - width : width;
+        float discartedDepth = left ? depth : dynamicTransform.localScale.z - depth;
+
+        float offset = (left ? width / 2.0f + discartedWidth : depth / 2.0f + discartedDepth) *
+            GetPlatfromOffset(staticPosition, dynamicTransform.position, -2.0f, 1.0f);
+
+        Vector3 position = new Vector3(
+            left ? staticPosition.x + offset : staticPosition.x,
+            dynamicTransform.position.y,
+            left ? staticPosition.z : staticPosition.z + offset
+        );
+
+        SpawnCuttedPlatform(position, discartedWidth, discartedDepth);
+    }
+
+    private float GetPlatfromOffset(Vector3 staticPosition, Vector3 dynamicPosition, float range, float clamp) =>
+        (float) System.Convert.ToInt32(
+            dynamicPosition.x < staticPosition.x ||
+            dynamicPosition.z < staticPosition.z
+        ) * range + clamp;
 
     private void GameOver()
     {
