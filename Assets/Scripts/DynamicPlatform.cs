@@ -4,27 +4,28 @@ using System.Collections.Generic;
 
 public class DynamicPlatform : MonoBehaviour
 {
+    public float offset { set; private get; }
+    public float y { set; private get; }
+
     private Animator animator;
-
-    private float offset = 0;
     private bool moveLeft;
-    private float y = 0;
-
-    public float Offset
-    {
-        set { offset = value; }
-        get { return offset; }
-    }
-
-    public float Y
-    {
-        set { y = value; }
-        get { return y; }
-    }
 
     void Awake()
     {
         animator = GetComponent<Animator>();
+    }
+
+    void LateUpdate()
+    {
+        float x = gameObject.transform.localPosition.x;
+        float z = gameObject.transform.localPosition.z;
+
+        x = moveLeft ? x : x + offset;
+        z = moveLeft ? z + offset : z;
+
+        gameObject.transform.localPosition = new Vector3(
+            x, y, z
+        );
     }
 
     public void SetDirection(bool left)
@@ -38,22 +39,9 @@ public class DynamicPlatform : MonoBehaviour
         animator.SetTrigger("Move");
     }
 
-    void LateUpdate()
-    {
-        float X = gameObject.transform.localPosition.x;
-        float Z = gameObject.transform.localPosition.z;
-
-        X = moveLeft ? X : X + Offset;
-        Z = moveLeft ? Z + Offset : Z;
-
-        gameObject.transform.localPosition = new Vector3(
-            X, Y, Z
-        );
-    }
-
     public void Stop()
     {
-        animator.enabled = false;
         animator.ResetTrigger("Move");
+        animator.enabled = false;
     }
 }

@@ -19,26 +19,25 @@ public class StackManager : MonoBehaviour
         }
     }
 
+    void Awake()
+    {
+        platforms.Add(gameObject.transform.GetChild(0).gameObject);
+    }
+
     void Start()
     {
-        SpawnStaticPlatform();
-        AnimateStaticPlatform();
-        Invoke("CreateDynamicPlatform", 1.0f);
+        StartCoroutine(InitializeStack());
     }
 
-    private void AnimateStaticPlatform()
+    private IEnumerator InitializeStack()
     {
-        platforms[0].GetComponent<StaticPlatform>().Animate();
-    }
-
-    private void CreateDynamicPlatform()
-    {
-        SpawnDynamicPlatform(1.0f, 1.0f);
+        yield return new WaitForSeconds(1.0f);
+        SpawnDynamicPlatform();
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && dynamicPlatformManager)
         {
             dynamicPlatformManager.Stop();
             CalculatePlatformDistance();
@@ -78,14 +77,12 @@ public class StackManager : MonoBehaviour
                 width, depth, left
             );
 
-            platforms.Remove(dynamicPlatform);
-            Destroy(dynamicPlatform);
-
-            SpawnDynamicPlatform(width, depth);
-            dynamicPlatformManager.Offset = offset;
+            DestroyDynamicPlatform(dynamicPlatform);
+            SpawnDynamicPlatform(width, depth, offset);
         }
         else
         {
+            ConvertDynamicPlatform(dynamicPlatform);
             GameOver();
         }
     }
@@ -135,14 +132,15 @@ public class StackManager : MonoBehaviour
         platforms.Add(platform);
     }
 
-    private void SpawnDynamicPlatform(float width = 1.0f, float depth = 1.0f)
+    private void SpawnDynamicPlatform(float width = 1.0f, float depth = 1.0f, float offset = 0.0f)
     {
         GameObject platform = Instantiate(dynamicPrefab, Vector3.zero, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
 
         dynamicPlatformManager = platform.GetComponent<DynamicPlatform>();
-        dynamicPlatformManager.Y = platforms.Count * platformHeight;
+        dynamicPlatformManager.y = platforms.Count * platformHeight;
         dynamicPlatformManager.SetDirection(isLeft);
+        dynamicPlatformManager.offset = offset;
         dynamicPlatformManager.Move();
 
         platforms.Add(platform);
@@ -154,11 +152,27 @@ public class StackManager : MonoBehaviour
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
     }
 
+    private void ConvertDynamicPlatform(GameObject dynamicPlatform)
+    {
+        Vector3 position = dynamicPlatform.transform.position;
+
+        float width = dynamicPlatform.transform.localScale.x;
+        float depth = dynamicPlatform.transform.localScale.z;
+
+        SpawnCuttedPlatform(position, width, depth);
+        DestroyDynamicPlatform(dynamicPlatform);
+    }
+
+    private void DestroyDynamicPlatform(GameObject dynamicPlatform)
+    {
+        platforms.Remove(dynamicPlatform);
+        Destroy(dynamicPlatform);
+    }
+
     private void GameOver()
     {
-        Debug.Log("Game Over!");
-
 #if UNITY_EDITOR
+        Debug.Log("Game Over!");
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
