@@ -6,12 +6,12 @@ public class StackManager : MonoBehaviour
 {
     [SerializeField] private GameObject staticPrefab;
     [SerializeField] private GameObject dynamicPrefab;
-    // [SerializeField] private GameObject cuttedPrefab;
+    [SerializeField] private GameObject cuttedPrefab;
 
     List<GameObject> platforms = new List<GameObject>();
 
     private DynamicPlatform dynamicPlatformManager;
-    private const float platformHeight = 0.1f;
+    private const float platformHeight = 0.15f;
 
     private bool isLeft {
         get {
@@ -22,7 +22,18 @@ public class StackManager : MonoBehaviour
     void Start()
     {
         SpawnStaticPlatform();
-        SpawnDynamicPlatform();
+        AnimateStaticPlatform();
+        Invoke("CreateDynamicPlatform", 1.0f);
+    }
+
+    private void AnimateStaticPlatform()
+    {
+        platforms[0].GetComponent<StaticPlatform>().Animate();
+    }
+
+    private void CreateDynamicPlatform()
+    {
+        SpawnDynamicPlatform(1.0f, 1.0f);
     }
 
     void Update()
@@ -32,34 +43,6 @@ public class StackManager : MonoBehaviour
             dynamicPlatformManager.Stop();
             CalculatePlatformDistance();
         }
-    }
-
-    private void SpawnStaticPlatform(Vector3 position = default, float width = 1.0f, float depth = 1.0f)
-    {
-        GameObject platform = Instantiate(staticPrefab, position, Quaternion.identity, transform);
-        platform.transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.green);
-        platform.transform.localScale = new Vector3(width, platformHeight, depth);
-        platforms.Add(platform);
-    }
-
-    private void SpawnDynamicPlatform(float width = 1.0f, float depth = 1.0f)
-    {
-        GameObject platform = Instantiate(dynamicPrefab, Vector3.zero, Quaternion.identity, transform);
-        platform.transform.localScale = new Vector3(width, platformHeight, depth);
-
-        dynamicPlatformManager = platform.GetComponent<DynamicPlatform>();
-        dynamicPlatformManager.Y = platforms.Count * platformHeight;
-        dynamicPlatformManager.SetDirection(isLeft);
-        dynamicPlatformManager.Move();
-
-        platforms.Add(platform);
-    }
-
-    private void SpawnCuttedPlatform(Vector3 position, float width, float depth)
-    {
-        GameObject platform = Instantiate(staticPrefab, position, Quaternion.identity, transform);
-        platform.transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.blue);
-        platform.transform.localScale = new Vector3(width, platformHeight, depth);
     }
 
     private void CalculatePlatformDistance()
@@ -144,6 +127,32 @@ public class StackManager : MonoBehaviour
             dynamicPosition.x < staticPosition.x ||
             dynamicPosition.z < staticPosition.z
         ) * range + clamp;
+
+    private void SpawnStaticPlatform(Vector3 position = default, float width = 1.0f, float depth = 1.0f)
+    {
+        GameObject platform = Instantiate(staticPrefab, position, Quaternion.identity, transform);
+        platform.transform.localScale = new Vector3(width, platformHeight, depth);
+        platforms.Add(platform);
+    }
+
+    private void SpawnDynamicPlatform(float width = 1.0f, float depth = 1.0f)
+    {
+        GameObject platform = Instantiate(dynamicPrefab, Vector3.zero, Quaternion.identity, transform);
+        platform.transform.localScale = new Vector3(width, platformHeight, depth);
+
+        dynamicPlatformManager = platform.GetComponent<DynamicPlatform>();
+        dynamicPlatformManager.Y = platforms.Count * platformHeight;
+        dynamicPlatformManager.SetDirection(isLeft);
+        dynamicPlatformManager.Move();
+
+        platforms.Add(platform);
+    }
+
+    private void SpawnCuttedPlatform(Vector3 position, float width, float depth)
+    {
+        GameObject platform = Instantiate(cuttedPrefab, position, Quaternion.identity, transform);
+        platform.transform.localScale = new Vector3(width, platformHeight, depth);
+    }
 
     private void GameOver()
     {

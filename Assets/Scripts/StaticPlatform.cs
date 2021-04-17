@@ -4,13 +4,16 @@ using System.Collections.Generic;
 
 public class StaticPlatform : MonoBehaviour
 {
+    private Animator animator;
+
     void Awake()
     {
-        // Debug.Log("StaticPlatform.Awake");
+        animator = GetComponent<Animator>();
     }
 
-    void Start()
+    public void Animate()
     {
-        // Debug.Log("StaticPlatform.Start");
+        animator.enabled = true;
+        animator.SetTrigger("Move");
     }
 }
