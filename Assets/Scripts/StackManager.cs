@@ -1,27 +1,40 @@
 using UnityEngine;
+using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
 
+[System.Serializable]
+public class CameraAnimation : UnityEvent<int, bool> {}
+
 public class StackManager : MonoBehaviour
 {
+    [SerializeField]
+    private CameraAnimation cameraAnimation = new CameraAnimation();
+    private List<GameObject> platforms = new List<GameObject>();
+
     [SerializeField] private GameObject staticPrefab;
     [SerializeField] private GameObject dynamicPrefab;
     [SerializeField] private GameObject cuttedPrefab;
-
-    List<GameObject> platforms = new List<GameObject>();
 
     private DynamicPlatform dynamicPlatformManager;
     private const float platformHeight = 0.15f;
 
     private bool isLeft {
         get {
-            return System.Convert.ToBoolean(platforms.Count % 2);
+            return System.Convert.ToBoolean(Platforms % 2);
+        }
+    }
+
+    private int Platforms {
+        get {
+            return platforms.Count;
         }
     }
 
     void Awake()
     {
         platforms.Add(gameObject.transform.GetChild(0).gameObject);
+        cameraAnimation.Invoke(Platforms, false);
     }
 
     void Start()
@@ -48,8 +61,8 @@ public class StackManager : MonoBehaviour
     {
         bool left = !isLeft;
 
-        GameObject staticPlatform = platforms[platforms.Count - 2];
-        GameObject dynamicPlatform = platforms[platforms.Count - 1];
+        GameObject staticPlatform = platforms[Platforms - 2];
+        GameObject dynamicPlatform = platforms[Platforms - 1];
 
         Vector3 distanceVector = dynamicPlatform.transform.position - staticPlatform.transform.position;
 
@@ -129,6 +142,8 @@ public class StackManager : MonoBehaviour
     {
         GameObject platform = Instantiate(staticPrefab, position, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
+
+        cameraAnimation.Invoke(Platforms, false);
         platforms.Add(platform);
     }
 
@@ -138,7 +153,7 @@ public class StackManager : MonoBehaviour
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
 
         dynamicPlatformManager = platform.GetComponent<DynamicPlatform>();
-        dynamicPlatformManager.y = platforms.Count * platformHeight;
+        dynamicPlatformManager.y = Platforms * platformHeight;
         dynamicPlatformManager.SetDirection(isLeft);
         dynamicPlatformManager.offset = offset;
         dynamicPlatformManager.Move();
