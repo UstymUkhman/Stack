@@ -186,9 +186,13 @@ public class StackManager : MonoBehaviour
 
     private void GameOver()
     {
-#if UNITY_EDITOR
         Debug.Log("Game Over!");
-        UnityEditor.EditorApplication.isPlaying = false;
-#endif
+        cameraAnimation.Invoke(Platforms, true);
+
+        /*
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+        */
     }
 }
