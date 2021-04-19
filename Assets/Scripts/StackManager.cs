@@ -8,9 +8,9 @@ public class CameraAnimation : UnityEvent<int, bool> {}
 
 public class StackManager : MonoBehaviour
 {
-    [SerializeField]
-    private CameraAnimation cameraAnimation = new CameraAnimation();
+    [SerializeField] private CameraAnimation cameraAnimation = new CameraAnimation();
     private List<GameObject> platforms = new List<GameObject>();
+    [SerializeField] private float tollerance = 0.025f;
 
     [SerializeField] private GameObject staticPrefab;
     [SerializeField] private GameObject dynamicPrefab;
@@ -67,29 +67,43 @@ public class StackManager : MonoBehaviour
         GameObject staticPlatform = platforms[Platforms - 2];
         GameObject dynamicPlatform = platforms[Platforms - 1];
 
+        Vector3 dynamicScale = dynamicPlatform.transform.localScale;
         Vector3 distanceVector = dynamicPlatform.transform.position - staticPlatform.transform.position;
 
         float distance = Mathf.Abs(left ? distanceVector.x : distanceVector.z);
 
         float allowedDistance = (
-            (left ? dynamicPlatform.transform.localScale.x : dynamicPlatform.transform.localScale.z) +
+            (left ? dynamicScale.x : dynamicScale.z) +
             (left ? staticPlatform.transform.localScale.x : staticPlatform.transform.localScale.z)
         ) / 2.0f;
 
         if (distance <= allowedDistance)
         {
-            float width = dynamicPlatform.transform.localScale.x - (left ? distance : 0.0f);
-            float depth = dynamicPlatform.transform.localScale.z - (left ? 0.0f : distance);
+            float width = dynamicScale.x - (left ? distance : 0.0f);
+            float depth = dynamicScale.z - (left ? 0.0f : distance);
+
+            float discartedWidth = left ? dynamicScale.x - width : width;
+            float discartedDepth = left ? depth : dynamicScale.z - depth;
+
+            if ((left ? discartedWidth : discartedDepth) > tollerance)
+            {
+                CalculateCuttedPlatform(
+                    dynamicPlatform.transform.position,
+                    staticPlatform.transform.position,
+                    left ? width / 2.0f : depth / 2.0f,
+                    discartedWidth, discartedDepth, left
+                );
+            }
+            else
+            {
+                Debug.Log("Perfect Timing!");
+                width = dynamicScale.x;
+                depth = dynamicScale.z;
+            }
 
             float offset = CalculateStaticPlatform(
                 staticPlatform.transform,
                 dynamicPlatform.transform.position,
-                width, depth, left
-            );
-
-            CalculateCuttedPlatform(
-                dynamicPlatform.transform,
-                staticPlatform.transform.position,
                 width, depth, left
             );
 
@@ -118,21 +132,18 @@ public class StackManager : MonoBehaviour
         return left ? position.x : position.z;
     }
 
-    private void CalculateCuttedPlatform(Transform dynamicTransform, Vector3 staticPosition, float width, float depth, bool left)
+    private void CalculateCuttedPlatform(Vector3 dynamicPosition, Vector3 staticPosition, float detachment, float width, float depth, bool left)
     {
-        float discartedWidth = left ? dynamicTransform.localScale.x - width : width;
-        float discartedDepth = left ? depth : dynamicTransform.localScale.z - depth;
-
-        float offset = (left ? width / 2.0f + discartedWidth : depth / 2.0f + discartedDepth) *
-            GetPlatfromOffset(staticPosition, dynamicTransform.position, -2.0f, 1.0f);
+        float offset = (left ? detachment + width : detachment + depth) *
+            GetPlatfromOffset(staticPosition, dynamicPosition, -2.0f, 1.0f);
 
         Vector3 position = new Vector3(
             left ? staticPosition.x + offset : staticPosition.x,
-            dynamicTransform.position.y,
+            dynamicPosition.y,
             left ? staticPosition.z : staticPosition.z + offset
         );
 
-        SpawnCuttedPlatform(position, discartedWidth, discartedDepth);
+        SpawnCuttedPlatform(position, width, depth);
     }
 
     private float GetPlatfromOffset(Vector3 staticPosition, Vector3 dynamicPosition, float range, float clamp) =>
