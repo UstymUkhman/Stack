@@ -17,7 +17,7 @@ public class StackManager : MonoBehaviour
     [SerializeField] private GameObject cuttedPrefab;
 
     private DynamicPlatform dynamicPlatformManager;
-    private const float platformHeight = 0.15f;
+    private float platformHeight;
 
     private bool isLeft {
         get {
@@ -33,7 +33,10 @@ public class StackManager : MonoBehaviour
 
     void Awake()
     {
-        platforms.Add(gameObject.transform.GetChild(0).gameObject);
+        GameObject firstPlatform = transform.GetChild(0).gameObject;
+        platformHeight = firstPlatform.transform.localScale.y;
+
+        platforms.Add(firstPlatform);
         cameraAnimation.Invoke(Platforms, false);
     }
 
@@ -138,7 +141,7 @@ public class StackManager : MonoBehaviour
             dynamicPosition.z < staticPosition.z
         ) * range + clamp;
 
-    private void SpawnStaticPlatform(Vector3 position = default, float width = 1.0f, float depth = 1.0f)
+    private void SpawnStaticPlatform(Vector3 position = default, float width = 1.2f, float depth = 1.2f)
     {
         GameObject platform = Instantiate(staticPrefab, position, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
@@ -147,7 +150,7 @@ public class StackManager : MonoBehaviour
         platforms.Add(platform);
     }
 
-    private void SpawnDynamicPlatform(float width = 1.0f, float depth = 1.0f, float offset = 0.0f)
+    private void SpawnDynamicPlatform(float width = 1.2f, float depth = 1.2f, float offset = 0.0f)
     {
         GameObject platform = Instantiate(dynamicPrefab, Vector3.zero, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);

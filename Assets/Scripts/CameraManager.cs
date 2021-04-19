@@ -4,8 +4,9 @@ using System.Collections.Generic;
 
 public class CameraManager : MonoBehaviour
 {
-    [SerializeField]
-    private float animationDuration = 0.5f;
+    [SerializeField] private float animationDuration = 0.5f;
+    private const float platformHeight = 0.2f;
+
     private Vector3 initialPosition;
     private new Camera camera;
 
@@ -17,23 +18,26 @@ public class CameraManager : MonoBehaviour
 
     public void CheckCameraAnimation(int platforms, bool gameOver)
     {
-        if (gameOver) ZoomOut(
-            Mathf.Floor(platforms / 15.0f)
-        );
+        float zoom = Mathf.Floor(platforms / 15.0f);
+
+        if (gameOver && zoom > 0.0f) ZoomOut(zoom);
         else if (platforms > 3) MoveUp();
     }
 
     private void MoveUp()
     {
-        StartCoroutine(AnimateVertically(transform.position.y + 0.1f));
+        StartCoroutine(AnimateVertically(
+            transform.position.y + platformHeight
+        ));
     }
 
     private void ZoomOut(float zoomLevel)
     {
-        float scale = zoomLevel * 3.0f;
+        float size = zoomLevel;
+        float scale = size + 1;
 
+        StartCoroutine(AnimateSize(camera.orthographicSize + size));
         StartCoroutine(AnimateVertically(initialPosition.y + scale));
-        StartCoroutine(AnimateSize(camera.orthographicSize + scale));
     }
 
     private IEnumerator AnimateVertically(float y)
