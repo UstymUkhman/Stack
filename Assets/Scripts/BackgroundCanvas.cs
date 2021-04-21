@@ -3,27 +3,44 @@ using UnityEngine.UI;
 
 public class BackgroundCanvas : MonoBehaviour
 {
-    private RawImage background;
-    private Texture2D texture;
+    private int currentIndex = 0;
+    private RawImage[] background = new RawImage[2];
 
     void Awake()
     {
-        texture = new Texture2D(1, 2);
-        background = transform.GetChild(0).GetComponent<RawImage>();
+        background[0] = transform.GetChild(0).GetComponent<RawImage>();
+        background[1] = transform.GetChild(1).GetComponent<RawImage>();
 
-        texture.wrapMode = TextureWrapMode.Clamp;
-        texture.filterMode = FilterMode.Bilinear;
+        SetBackgroundTexture(0);
+        SetBackgroundTexture(1);
 
-        SetGradient(Color.white, Color.black);
+        background[1].CrossFadeAlpha(0.0f, 0.0f, true);
     }
 
-    public void SetGradient(Color top, Color bottom)
+    private void SetBackgroundTexture(int index)
     {
-        Color[] gradient = new Color[] { bottom, top };
+        Texture2D texture = new Texture2D(1, 2);
 
-        texture.SetPixels(gradient);
+        texture.SetPixels(new Color[] {
+            Random.ColorHSV(0.0f, 1.0f, 0.1f, 1.0f, 0.1f, 0.9f),
+            Random.ColorHSV(0.0f, 1.0f, 0.1f, 1.0f, 0.1f, 0.9f)
+        });
+
         texture.Apply();
+        background[index].texture = texture;
 
-        background.texture = texture;
+        background[index].texture.wrapMode = TextureWrapMode.Clamp;
+        background[index].texture.filterMode = FilterMode.Bilinear;
+    }
+
+    public void ChangeBackgroundGradient()
+    {
+        int nextIndex = (currentIndex - 1) * -1;
+        SetBackgroundTexture(nextIndex);
+
+        background[currentIndex].CrossFadeAlpha(0.0f, 3.0f, false);
+        background[nextIndex].CrossFadeAlpha(1.0f, 3.0f, false);
+
+        currentIndex = nextIndex;
     }
 }

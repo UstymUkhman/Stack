@@ -10,7 +10,7 @@ public class CuttedPlatform : MonoBehaviour
 
     void Awake()
     {
-        gameObject.transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.blue);
+        // gameObject.transform.GetComponent<MeshRenderer>().material.SetColor("_Color", hsv);
         body = gameObject.GetComponent<Rigidbody>();
         MASS_MULTIPLIER = body.mass;
     }

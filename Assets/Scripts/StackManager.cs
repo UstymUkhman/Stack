@@ -9,6 +9,8 @@ public class CameraAnimation : UnityEvent<int, bool> {}
 public class StackManager : MonoBehaviour
 {
     [SerializeField] private CameraAnimation cameraAnimation = new CameraAnimation();
+    [SerializeField] private UnityEvent backgroundColor = new UnityEvent();
+
     private List<GameObject> platforms = new List<GameObject>();
     [SerializeField] private float tollerance = 0.025f;
 
@@ -115,6 +117,7 @@ public class StackManager : MonoBehaviour
                 SpawnFramePlane(dynamicScale);
             }
 
+            DetectColorChange();
             DestroyDynamicPlatform(dynamicPlatform);
             SpawnDynamicPlatform(width, depth, offset);
         }
@@ -216,6 +219,14 @@ public class StackManager : MonoBehaviour
     {
         platforms.Remove(dynamicPlatform);
         Destroy(dynamicPlatform);
+    }
+
+    private void DetectColorChange()
+    {
+        if (Platforms % 20 == 0)
+        {
+            backgroundColor.Invoke();
+        }
     }
 
     private void GameOver()
