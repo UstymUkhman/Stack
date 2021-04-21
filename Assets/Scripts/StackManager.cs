@@ -15,6 +15,7 @@ public class StackManager : MonoBehaviour
     [SerializeField] private GameObject staticPrefab;
     [SerializeField] private GameObject dynamicPrefab;
     [SerializeField] private GameObject cuttedPrefab;
+    [SerializeField] private GameObject framePrefab;
 
     private DynamicPlatform dynamicPlatformManager;
     private float platformHeight;
@@ -85,13 +86,15 @@ public class StackManager : MonoBehaviour
             float discartedWidth = left ? dynamicScale.x - width : width;
             float discartedDepth = left ? depth : dynamicScale.z - depth;
 
-            if ((left ? discartedWidth : discartedDepth) > tollerance)
+            bool perfectTiming = (left ? discartedWidth : discartedDepth) <= tollerance;
+
+            if (!perfectTiming)
             {
                 CalculateCuttedPlatform(
                     dynamicPlatform.transform.position,
                     staticPlatform.transform.position,
                     left ? width / 2.0f : depth / 2.0f,
-                    discartedWidth, discartedDepth, left
+                    discartedWidth, discartedDepth
                 );
             }
             else
@@ -102,10 +105,15 @@ public class StackManager : MonoBehaviour
             }
 
             float offset = CalculateStaticPlatform(
-                staticPlatform.transform,
                 dynamicPlatform.transform.position,
-                width, depth, left
+                staticPlatform.transform,
+                width, depth
             );
+
+            if (perfectTiming)
+            {
+                SpawnFramePlane(dynamicScale);
+            }
 
             DestroyDynamicPlatform(dynamicPlatform);
             SpawnDynamicPlatform(width, depth, offset);
@@ -117,33 +125,33 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    private float CalculateStaticPlatform(Transform staticTransform, Vector3 dynamicPosition, float width, float depth, bool left)
+    private void CalculateCuttedPlatform(Vector3 dynamicPosition, Vector3 staticPosition, float detachment, float width, float depth)
     {
-        float offset = (left ? staticTransform.localScale.x - width : staticTransform.localScale.z - depth) /
-            GetPlatfromOffset(staticTransform.position, dynamicPosition, -4.0f, 2.0f);
-
-        Vector3 position = new Vector3(
-            left ? staticTransform.position.x + offset : staticTransform.position.x,
-            dynamicPosition.y,
-            left ? staticTransform.position.z : staticTransform.position.z + offset
-        );
-
-        SpawnStaticPlatform(position, width, depth);
-        return left ? position.x : position.z;
-    }
-
-    private void CalculateCuttedPlatform(Vector3 dynamicPosition, Vector3 staticPosition, float detachment, float width, float depth, bool left)
-    {
-        float offset = (left ? detachment + width : detachment + depth) *
+        float offset = (isLeft ? detachment + depth : detachment + width) *
             GetPlatfromOffset(staticPosition, dynamicPosition, -2.0f, 1.0f);
 
         Vector3 position = new Vector3(
-            left ? staticPosition.x + offset : staticPosition.x,
+            isLeft ? staticPosition.x : staticPosition.x + offset,
             dynamicPosition.y,
-            left ? staticPosition.z : staticPosition.z + offset
+            isLeft ? staticPosition.z + offset : staticPosition.z
         );
 
         SpawnCuttedPlatform(position, width, depth);
+    }
+
+    private float CalculateStaticPlatform(Vector3 dynamicPosition, Transform staticTransform, float width, float depth)
+    {
+        float offset = (isLeft ? staticTransform.localScale.z - depth : staticTransform.localScale.x - width) /
+            GetPlatfromOffset(staticTransform.position, dynamicPosition, -4.0f, 2.0f);
+
+        Vector3 position = new Vector3(
+            isLeft ? staticTransform.position.x : staticTransform.position.x + offset,
+            dynamicPosition.y,
+            isLeft ? staticTransform.position.z + offset : staticTransform.position.z
+        );
+
+        SpawnStaticPlatform(position, width, depth);
+        return isLeft ? position.x : position.z;
     }
 
     private float GetPlatfromOffset(Vector3 staticPosition, Vector3 dynamicPosition, float range, float clamp) =>
@@ -179,6 +187,18 @@ public class StackManager : MonoBehaviour
     {
         GameObject platform = Instantiate(cuttedPrefab, position, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
+    }
+
+    private void SpawnFramePlane(Vector3 dynamicScale)
+    {
+        float width = dynamicScale.x / 10.0f + dynamicScale.x / 100.0f;
+        float depth = dynamicScale.z / 10.0f + dynamicScale.z / 100.0f;
+
+        Vector3 position = platforms[Platforms - 1].transform.position;
+        position.y -= platformHeight / 2.0f;
+
+        GameObject platform = Instantiate(framePrefab, position, Quaternion.identity, transform);
+        platform.transform.localScale = new Vector3(width, 1.0f, depth);
     }
 
     private void ConvertDynamicPlatform(GameObject dynamicPlatform)

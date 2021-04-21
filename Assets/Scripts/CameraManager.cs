@@ -12,7 +12,7 @@ public class CameraManager : MonoBehaviour
 
     void Awake()
     {
-        camera = GetComponent<Camera>();
+        camera = Camera.main;
         initialPosition = transform.position;
     }
 
