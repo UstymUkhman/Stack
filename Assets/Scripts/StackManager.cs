@@ -8,10 +8,12 @@ public class CameraAnimation : UnityEvent<int, bool> {}
 
 public class StackManager : MonoBehaviour
 {
+    [Header("Camera animation events for \"Move Up\" and \"Zoom Out\":")]
     [SerializeField] private CameraAnimation cameraAnimation = new CameraAnimation();
-    [SerializeField] private UnityEvent backgroundColor = new UnityEvent();
 
     private List<GameObject> platforms = new List<GameObject>();
+
+    [Header("Offset to ignore for a perfect timing:")]
     [SerializeField] private float tollerance = 0.025f;
 
     [SerializeField] private GameObject staticPrefab;
@@ -101,7 +103,6 @@ public class StackManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Perfect Timing!");
                 width = dynamicScale.x;
                 depth = dynamicScale.z;
             }
@@ -112,12 +113,7 @@ public class StackManager : MonoBehaviour
                 width, depth
             );
 
-            if (perfectTiming)
-            {
-                SpawnFramePlane(dynamicScale);
-            }
-
-            DetectColorChange();
+            if (perfectTiming) SpawnFramePlane();
             DestroyDynamicPlatform(dynamicPlatform);
             SpawnDynamicPlatform(width, depth, offset);
         }
@@ -192,16 +188,18 @@ public class StackManager : MonoBehaviour
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
     }
 
-    private void SpawnFramePlane(Vector3 dynamicScale)
+    private void SpawnFramePlane()
     {
-        float width = dynamicScale.x / 10.0f + dynamicScale.x / 100.0f;
-        float depth = dynamicScale.z / 10.0f + dynamicScale.z / 100.0f;
-
         Vector3 position = platforms[Platforms - 1].transform.position;
+        Vector3 scale = platforms[Platforms - 1].transform.localScale * 0.1f;
+
         position.y -= platformHeight / 2.0f;
 
+        scale.x *= 1.2f;
+        scale.z *= 1.2f;
+
         GameObject platform = Instantiate(framePrefab, position, Quaternion.identity, transform);
-        platform.transform.localScale = new Vector3(width, 1.0f, depth);
+        platform.transform.localScale = new Vector3(scale.x, 1.0f, scale.z);
     }
 
     private void ConvertDynamicPlatform(GameObject dynamicPlatform)
@@ -221,23 +219,9 @@ public class StackManager : MonoBehaviour
         Destroy(dynamicPlatform);
     }
 
-    private void DetectColorChange()
-    {
-        if (Platforms % 20 == 0)
-        {
-            backgroundColor.Invoke();
-        }
-    }
-
     private void GameOver()
     {
         Debug.Log("Game Over!");
         cameraAnimation.Invoke(Platforms, true);
-
-        /*
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #endif
-        */
     }
 }

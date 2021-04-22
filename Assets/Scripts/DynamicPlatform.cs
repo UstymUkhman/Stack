@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 public class DynamicPlatform : MonoBehaviour
 {
-    public float offset { set; private get; }
-    public float y { set; private get; }
+    [HideInInspector] public float offset { set; private get; }
+    [HideInInspector] public float y { set; private get; }
 
     private Animator animator;
     private bool moveLeft;

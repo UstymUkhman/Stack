@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 public class CameraManager : MonoBehaviour
 {
-    [SerializeField]
-    private float animationDuration = 0.5f;
+    [Header("\"Move Up\" and \"Zoom Out\" animations duration (in seconds):")]
+    [SerializeField] private float animationDuration = 0.5f;
 
     private Vector3 initialPosition;
     private new Camera camera;

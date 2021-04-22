@@ -1,10 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class BackgroundCanvas : MonoBehaviour
 {
-    private int currentIndex = 0;
+    [Header("Background gradient color cross fade duration (in seconds):")]
+    [SerializeField] private float crossFadeDuration = 5.0f;
+
+    [Header("Background gradient color change frequency (in seconds):")]
+    [SerializeField] private float backgroundDelay = 180.0f;
+
     private RawImage[] background = new RawImage[2];
+    private int currentIndex = 0;
 
     void Awake()
     {
@@ -15,6 +22,7 @@ public class BackgroundCanvas : MonoBehaviour
         SetBackgroundTexture(1);
 
         background[1].CrossFadeAlpha(0.0f, 0.0f, true);
+        StartCoroutine(ChangeBackgroundGradient());
     }
 
     private void SetBackgroundTexture(int index)
@@ -33,14 +41,17 @@ public class BackgroundCanvas : MonoBehaviour
         background[index].texture.filterMode = FilterMode.Bilinear;
     }
 
-    public void ChangeBackgroundGradient()
+    private IEnumerator ChangeBackgroundGradient()
     {
+        yield return new WaitForSeconds(backgroundDelay);
+
         int nextIndex = (currentIndex - 1) * -1;
         SetBackgroundTexture(nextIndex);
 
-        background[currentIndex].CrossFadeAlpha(0.0f, 3.0f, false);
-        background[nextIndex].CrossFadeAlpha(1.0f, 3.0f, false);
+        background[currentIndex].CrossFadeAlpha(0.0f, crossFadeDuration, false);
+        background[nextIndex].CrossFadeAlpha(1.0f, crossFadeDuration, false);
 
         currentIndex = nextIndex;
+        StartCoroutine(ChangeBackgroundGradient());
     }
 }
