@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class CameraAnimation : UnityEvent<int, bool> {}
+public class CameraAnimation : UnityEvent<int, bool> { }
 
 public class StackManager : MonoBehaviour
 {
@@ -19,19 +19,23 @@ public class StackManager : MonoBehaviour
     [SerializeField] private GameObject staticPrefab;
     [SerializeField] private GameObject dynamicPrefab;
     [SerializeField] private GameObject cuttedPrefab;
-    [SerializeField] private GameObject framePrefab;
+    [SerializeField] private GameObject planePrefab;
 
     private DynamicPlatform dynamicPlatformManager;
     private float platformHeight;
 
-    private bool isLeft {
-        get {
+    private bool isLeft
+    {
+        get
+        {
             return System.Convert.ToBoolean(Platforms % 2);
         }
     }
 
-    private int Platforms {
-        get {
+    private int Platforms
+    {
+        get
+        {
             return platforms.Count;
         }
     }
@@ -113,7 +117,7 @@ public class StackManager : MonoBehaviour
                 width, depth
             );
 
-            if (perfectTiming) SpawnFramePlane();
+            if (true /* perfectTiming */) SpawnPlane();
             DestroyDynamicPlatform(dynamicPlatform);
             SpawnDynamicPlatform(width, depth, offset);
         }
@@ -154,7 +158,7 @@ public class StackManager : MonoBehaviour
     }
 
     private float GetPlatfromOffset(Vector3 staticPosition, Vector3 dynamicPosition, float range, float clamp) =>
-        (float) System.Convert.ToInt32(
+        (float)System.Convert.ToInt32(
             dynamicPosition.x < staticPosition.x ||
             dynamicPosition.z < staticPosition.z
         ) * range + clamp;
@@ -188,20 +192,6 @@ public class StackManager : MonoBehaviour
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
     }
 
-    private void SpawnFramePlane()
-    {
-        Vector3 position = platforms[Platforms - 1].transform.position;
-        Vector3 scale = platforms[Platforms - 1].transform.localScale * 0.1f;
-
-        position.y -= platformHeight / 2.0f;
-
-        scale.x *= 1.2f;
-        scale.z *= 1.2f;
-
-        GameObject platform = Instantiate(framePrefab, position, Quaternion.identity, transform);
-        platform.transform.localScale = new Vector3(scale.x, 1.0f, scale.z);
-    }
-
     private void ConvertDynamicPlatform(GameObject dynamicPlatform)
     {
         Vector3 position = dynamicPlatform.transform.position;
@@ -217,6 +207,18 @@ public class StackManager : MonoBehaviour
     {
         platforms.Remove(dynamicPlatform);
         Destroy(dynamicPlatform);
+    }
+
+    private void SpawnPlane()
+    {
+        Transform staticTransform = platforms[Platforms - 1].transform;
+        Vector3 scale = staticTransform.localScale * 0.1f;
+
+        Vector3 position = staticTransform.position;
+        position.y -= platformHeight / 2.0f;
+
+        GameObject plane = Instantiate(planePrefab, position, Quaternion.identity, transform);
+        plane.transform.localScale = new Vector3(scale.x, 1.0f, scale.z);
     }
 
     private void GameOver()
