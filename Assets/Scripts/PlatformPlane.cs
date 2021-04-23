@@ -1,40 +1,101 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class PlatformPlane : MonoBehaviour
 {
     [Header("Margin from plane border (range 0.0 - 1.0):")]
     [SerializeField] private float borderMargin = 0.1f;
 
-    private readonly float MAX_SIZE = 10.0f;
-    private readonly int MASK_QUEUE = 3002;
-    // private float animationDuration;
+    [Header("Scale multiplier for fade out animation:")]
+    [SerializeField] private float scaleFactor = 1.5f;
+
+    private readonly float PLANE_SIZE   = 0.12f;
+    private readonly float HOLE_SIZE    = 10.0f;
+    private readonly int MAX_MASK_QUEUE = 3010;
+
+    private float animationDuration;
+    private Transform holeTransform;
+
+    private Material planeMaterial;
+    private Material holeMaterial;
+
+    void Awake()
+    {
+        holeTransform = transform.GetChild(0).transform;
+        planeMaterial = GetComponent<MeshRenderer>().material;
+        holeMaterial = holeTransform.GetComponent<MeshRenderer>().material;
+
+        animationDuration = GetComponent<Animator>()
+            .runtimeAnimatorController
+            .animationClips[0]
+            .length;
+    }
 
     void Start()
     {
-        float margin = borderMargin / MAX_SIZE;
+        transform.localScale = new Vector3(
+            GetPlaneSize(transform.localScale.x),
+            transform.localScale.y,
+            GetPlaneSize(transform.localScale.z)
+        );
 
-        float x = transform.localScale.x + margin;
-        float z = transform.localScale.z + margin;
-
-        float width = 10.0f * transform.localScale.x / x;
-        float depth = 10.0f * transform.localScale.z / z;
-
-        Transform holeTransform = transform.GetChild(0).transform;
-        transform.localScale = new Vector3(x, transform.localScale.y, z);
-
-        holeTransform.localScale = new Vector3(width, holeTransform.localScale.y, depth);
-        GetComponent<MeshRenderer>().material.renderQueue = MASK_QUEUE;
-
-        /*animationDuration = GetComponent<Animator>()
-            .runtimeAnimatorController
-            .animationClips[0]
-            .length;*/
+        holeTransform.localScale = new Vector3(
+            GetHoleSize(transform.localScale.x),
+            holeTransform.localScale.y,
+            GetHoleSize(transform.localScale.z)
+        );
     }
+
+    public void AddRenderQueue(int platformIndex)
+    {
+        int queue = MAX_MASK_QUEUE - platformIndex * 2;
+        holeMaterial.renderQueue = queue - 1;
+        planeMaterial.renderQueue = queue;
+    }
+
+    public IEnumerator AnimateScale()
+    {
+        float startTime = Time.time;
+        float targetSize = PLANE_SIZE * scaleFactor;
+        float endTime = Time.time + animationDuration;
+
+        Vector3 currentHoleScale = holeTransform.localScale;
+        Vector3 currentPlaneScale = transform.localScale;
+
+        Vector3 targetPlaneScale = new Vector3(
+            GetPlaneSize(targetSize),
+            transform.localScale.y,
+            GetPlaneSize(targetSize)
+        );
+
+        Vector3 targetHoleScale = new Vector3(
+            GetHoleSize(targetSize),
+            holeTransform.localScale.y,
+            GetHoleSize(targetSize)
+        );
+
+        while (Time.time < endTime)
+        {
+            float time = (Time.time - startTime) / animationDuration;
+
+            transform.localScale = Vector3.Slerp(currentPlaneScale, targetPlaneScale, time);
+            holeTransform.localScale = Vector3.Slerp(currentHoleScale, targetHoleScale, time);
+
+            yield return null;
+        }
+
+        holeTransform.localScale = targetHoleScale;
+        transform.localScale = targetPlaneScale;
+    }
+
+    private float GetPlaneSize(float side) =>
+        side + borderMargin / HOLE_SIZE;
+
+    private float GetHoleSize(float side) =>
+        10.0f * side / GetPlaneSize(side);
 
     private void Destroy()
     {
-        // Destroy(gameObject);
+        Destroy(gameObject);
     }
 }

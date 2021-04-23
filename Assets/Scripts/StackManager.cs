@@ -22,20 +22,17 @@ public class StackManager : MonoBehaviour
     [SerializeField] private GameObject planePrefab;
 
     private DynamicPlatform dynamicPlatformManager;
+    private int perfectPlatformsCount = 0;
     private float platformHeight;
 
-    private bool isLeft
-    {
-        get
-        {
+    private bool isLeft {
+        get {
             return System.Convert.ToBoolean(Platforms % 2);
         }
     }
 
-    private int Platforms
-    {
-        get
-        {
+    private int Platforms {
+        get {
             return platforms.Count;
         }
     }
@@ -94,10 +91,12 @@ public class StackManager : MonoBehaviour
             float discartedWidth = left ? dynamicScale.x - width : width;
             float discartedDepth = left ? depth : dynamicScale.z - depth;
 
-            bool perfectTiming = (left ? discartedWidth : discartedDepth) <= tollerance;
+            bool perfect = (left ? discartedWidth : discartedDepth) <= tollerance;
 
-            if (!perfectTiming)
+            if (!perfect)
             {
+                perfectPlatformsCount = 0;
+
                 CalculateCuttedPlatform(
                     dynamicPlatform.transform.position,
                     staticPlatform.transform.position,
@@ -107,6 +106,7 @@ public class StackManager : MonoBehaviour
             }
             else
             {
+                perfectPlatformsCount++;
                 width = dynamicScale.x;
                 depth = dynamicScale.z;
             }
@@ -117,7 +117,7 @@ public class StackManager : MonoBehaviour
                 width, depth
             );
 
-            if (true /* perfectTiming */) SpawnPlane();
+            StartCoroutine(SpawnPlanes(perfect));
             DestroyDynamicPlatform(dynamicPlatform);
             SpawnDynamicPlatform(width, depth, offset);
         }
@@ -209,16 +209,35 @@ public class StackManager : MonoBehaviour
         Destroy(dynamicPlatform);
     }
 
-    private void SpawnPlane()
+    private void SpawnPlane(Transform staticTransform, int index)
     {
-        Transform staticTransform = platforms[Platforms - 1].transform;
         Vector3 scale = staticTransform.localScale * 0.1f;
-
         Vector3 position = staticTransform.position;
         position.y -= platformHeight / 2.0f;
 
         GameObject plane = Instantiate(planePrefab, position, Quaternion.identity, transform);
         plane.transform.localScale = new Vector3(scale.x, 1.0f, scale.z);
+
+        if (index > 0)
+        {
+            PlatformPlane platformPlane = plane.GetComponent<PlatformPlane>();
+            StartCoroutine(platformPlane.AnimateScale());
+            platformPlane.AddRenderQueue(index);
+        }
+    }
+
+    private IEnumerator SpawnPlanes(bool matched)
+    {
+        Transform staticTransform = platforms[Platforms - 1].transform;
+        int animatedPlanes = Mathf.Min(perfectPlatformsCount - 3, 3);
+
+        if (matched) SpawnPlane(staticTransform, 0);
+
+        for (int p = 1; p <= animatedPlanes; p++)
+        {
+            yield return new WaitForSeconds(p * 0.1f);
+            SpawnPlane(staticTransform, p);
+        }
     }
 
     private void GameOver()
