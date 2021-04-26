@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 public class CuttedPlatform : MonoBehaviour
 {
@@ -10,7 +8,6 @@ public class CuttedPlatform : MonoBehaviour
 
     void Awake()
     {
-        // gameObject.transform.GetComponent<MeshRenderer>().material.SetColor("_Color", hsv);
         body = gameObject.GetComponent<Rigidbody>();
         MASS_MULTIPLIER = body.mass;
     }

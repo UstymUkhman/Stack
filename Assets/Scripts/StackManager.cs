@@ -39,11 +39,7 @@ public class StackManager : MonoBehaviour
 
     void Awake()
     {
-        GameObject firstPlatform = transform.GetChild(0).gameObject;
-        platformHeight = firstPlatform.transform.localScale.y;
-
-        platforms.Add(firstPlatform);
-        cameraAnimation.Invoke(Platforms, false);
+        CreateFirstPlatform();
     }
 
     void Start()
@@ -51,10 +47,27 @@ public class StackManager : MonoBehaviour
         StartCoroutine(InitializeStack());
     }
 
+    private void CreateFirstPlatform()
+    {
+        GameObject platform = transform.GetChild(0).gameObject;
+        platformHeight = platform.transform.localScale.y;
+
+        platforms.Add(platform);
+        SetPlatformColor();
+
+        cameraAnimation.Invoke(Platforms, false);
+    }
+
     private IEnumerator InitializeStack()
     {
         yield return new WaitForSeconds(1.0f);
         SpawnDynamicPlatform();
+    }
+
+    private void SetPlatformColor(int last = 1)
+    {
+        Color platformColor = ColorManager.Instance.GetPlatformColor(Platforms - last);
+        platforms[Platforms - 1].GetComponent<MeshRenderer>().material.SetColor("_Color", platformColor);
     }
 
     void Update()
@@ -158,7 +171,7 @@ public class StackManager : MonoBehaviour
     }
 
     private float GetPlatfromOffset(Vector3 staticPosition, Vector3 dynamicPosition, float range, float clamp) =>
-        (float)System.Convert.ToInt32(
+        (float) System.Convert.ToInt32(
             dynamicPosition.x < staticPosition.x ||
             dynamicPosition.z < staticPosition.z
         ) * range + clamp;
@@ -170,6 +183,7 @@ public class StackManager : MonoBehaviour
 
         cameraAnimation.Invoke(Platforms, false);
         platforms.Add(platform);
+        SetPlatformColor(2);
     }
 
     private void SpawnDynamicPlatform(float width = 1.2f, float depth = 1.2f, float offset = 0.0f)
@@ -184,12 +198,16 @@ public class StackManager : MonoBehaviour
         dynamicPlatformManager.Move();
 
         platforms.Add(platform);
+        SetPlatformColor();
     }
 
     private void SpawnCuttedPlatform(Vector3 position, float width, float depth)
     {
         GameObject platform = Instantiate(cuttedPrefab, position, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
+
+        Color platformColor = ColorManager.Instance.GetPlatformColor(Platforms - 1);
+        platform.GetComponent<MeshRenderer>().material.SetColor("_Color", platformColor);
     }
 
     private void ConvertDynamicPlatform(GameObject dynamicPlatform)
