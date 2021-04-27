@@ -28,11 +28,9 @@ public class BackgroundCanvas : MonoBehaviour
     private void SetBackgroundTexture(int index)
     {
         Texture2D texture = new Texture2D(1, 2);
+        Color[] colors = ColorManager.Instance.GetPlatformColors();
 
-        texture.SetPixels(new Color[] {
-            Random.ColorHSV(0.0f, 1.0f, 0.1f, 1.0f, 0.1f, 0.9f),
-            Random.ColorHSV(0.0f, 1.0f, 0.1f, 1.0f, 0.1f, 0.9f)
-        });
+        texture.SetPixels(new Color[] { colors[0], colors[1] });
 
         texture.Apply();
         background[index].texture = texture;

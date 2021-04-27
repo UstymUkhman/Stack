@@ -44,6 +44,7 @@ public class StackManager : MonoBehaviour
 
     void Start()
     {
+        SetPlatformColor();
         StartCoroutine(InitializeStack());
     }
 
@@ -53,8 +54,6 @@ public class StackManager : MonoBehaviour
         platformHeight = platform.transform.localScale.y;
 
         platforms.Add(platform);
-        SetPlatformColor();
-
         cameraAnimation.Invoke(Platforms, false);
     }
 
