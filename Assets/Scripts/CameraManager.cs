@@ -3,23 +3,26 @@ using System.Collections;
 
 public class CameraManager : MonoBehaviour
 {
-    [Header("\"Move Up\" and \"Zoom Out\" animations duration (in seconds):")]
+    [Header("\"Move Up\", \"Zoom Out\" and \"Reset\" animations duration (in seconds):")]
     [SerializeField] private float animationDuration = 0.5f;
 
-    private Vector3 initialPosition;
+    private float initialHeight;
+    private float initialSize;
     private new Camera camera;
 
     void Awake()
     {
         camera = Camera.main;
-        initialPosition = transform.position;
+        initialHeight = transform.position.y;
+        initialSize = camera.orthographicSize;
     }
 
     public void CheckCameraAnimation(int platforms, bool gameOver)
     {
         float zoom = Mathf.Min(Mathf.Floor(platforms / 15.0f), 4.0f);
 
-        if (gameOver && zoom > 0.0f) ZoomOut(zoom);
+        if (gameOver && platforms == 0) Reset();
+        else if (gameOver && zoom > 0.0f) ZoomOut(zoom);
         else if (platforms > 3) MoveUp();
     }
 
@@ -33,8 +36,21 @@ public class CameraManager : MonoBehaviour
         float scale = zoomLevel * 3.0f;
         float size = scale - (zoomLevel * 0.5f + 1.0f);
 
+        StartCoroutine(AnimateVertically(initialHeight + scale));
         StartCoroutine(AnimateSize(camera.orthographicSize + size));
-        StartCoroutine(AnimateVertically(initialPosition.y + scale));
+    }
+
+    private void Reset()
+    {
+        if (transform.position.y > initialHeight)
+        {
+            StartCoroutine(AnimateVertically(initialHeight));
+        }
+
+        if (camera.orthographicSize > initialSize)
+        {
+            StartCoroutine(AnimateSize(initialSize));
+        }
     }
 
     private IEnumerator AnimateVertically(float y)

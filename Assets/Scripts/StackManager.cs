@@ -8,7 +8,7 @@ public class CameraAnimation : UnityEvent<int, bool> { }
 
 public class StackManager : MonoBehaviour
 {
-    [Header("Camera animation events for \"Move Up\" and \"Zoom Out\":")]
+    [Header("Camera animation events for \"Move Up\", \"Zoom Out\" and \"Reset\":")]
     [SerializeField] private CameraAnimation cameraAnimation = new CameraAnimation();
 
     private List<GameObject> platforms = new List<GameObject>();
@@ -23,7 +23,10 @@ public class StackManager : MonoBehaviour
 
     private DynamicPlatform dynamicPlatformManager;
     private int perfectPlatformsCount = 0;
-    private float platformHeight;
+    private float platformHeight = 0.0f;
+
+    private bool firstStart = false;
+    private bool gameOver = true;
 
     private bool isLeft {
         get {
@@ -45,22 +48,14 @@ public class StackManager : MonoBehaviour
     void Start()
     {
         SetPlatformColor();
-        StartCoroutine(InitializeStack());
+        StartCoroutine(Init());
     }
 
     private void CreateFirstPlatform()
     {
         GameObject platform = transform.GetChild(0).gameObject;
         platformHeight = platform.transform.localScale.y;
-
         platforms.Add(platform);
-        cameraAnimation.Invoke(Platforms, false);
-    }
-
-    private IEnumerator InitializeStack()
-    {
-        yield return new WaitForSeconds(1.0f);
-        SpawnDynamicPlatform();
     }
 
     private void SetPlatformColor(int last = 1)
@@ -69,13 +64,48 @@ public class StackManager : MonoBehaviour
         platforms[Platforms - 1].GetComponent<MeshRenderer>().material.SetColor("_Color", platformColor);
     }
 
+    private IEnumerator Init()
+    {
+        yield return new WaitForSeconds(1.0f);
+        gameOver = false;
+    }
+
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && dynamicPlatformManager)
+        if (gameOver && !firstStart)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            OnTap();
+        }
+    }
+
+    private void OnTap()
+    {
+        if (!firstStart)
+        {
+            Play();
+            return;
+        }
+
+        if (gameOver)
+        {
+            Reset();
+        }
+        else
         {
             dynamicPlatformManager.Stop();
             CalculatePlatformDistance();
         }
+    }
+
+    private void Play()
+    {
+        SpawnDynamicPlatform();
+        firstStart = true;
     }
 
     private void CalculatePlatformDistance()
@@ -136,7 +166,8 @@ public class StackManager : MonoBehaviour
         else
         {
             ConvertDynamicPlatform(dynamicPlatform);
-            GameOver();
+            cameraAnimation.Invoke(Platforms, true);
+            gameOver = true;
         }
     }
 
@@ -257,9 +288,20 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    private void GameOver()
+    private void Reset()
     {
-        Debug.Log("Game Over!");
-        cameraAnimation.Invoke(Platforms, true);
+        for (int i = 1; i < transform.childCount; i++)
+        {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+
+        platforms.Clear();
+        firstStart = false;
+
+        CreateFirstPlatform();
+        SetPlatformColor();
+
+        StartCoroutine(Init());
+        cameraAnimation.Invoke(0, true);
     }
 }
