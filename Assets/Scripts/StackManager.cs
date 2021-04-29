@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class CameraAnimation : UnityEvent<int, bool> { }
+public class CameraAnimation : UnityEvent<int, bool, bool> { }
 
 public class StackManager : MonoBehaviour
 {
@@ -19,6 +19,7 @@ public class StackManager : MonoBehaviour
     [SerializeField] private GameObject dynamicPrefab;
     [SerializeField] private GameObject staticPrefab;
     [SerializeField] private GameObject cuttedPrefab;
+    [SerializeField] private GameObject spherePrefab;
     [SerializeField] private GameObject planePrefab;
 
     private Dynamic dynamicPlatformManager;
@@ -115,8 +116,8 @@ public class StackManager : MonoBehaviour
         }
         else
         {
+            cameraAnimation.Invoke(Platforms, true, false);
             ConvertDynamicPlatform(dynamicPlatform);
-            cameraAnimation.Invoke(Platforms, true);
             return true;
         }
 
@@ -161,9 +162,11 @@ public class StackManager : MonoBehaviour
     private void SpawnStaticPlatform(Vector3 position = default, float width = 1.2f, float depth = 1.2f)
     {
         GameObject platform = Instantiate(staticPrefab, position, Quaternion.identity, transform);
-        platform.transform.localScale = new Vector3(width, platformHeight, depth);
+        Vector3 scale = new Vector3(width, platformHeight, depth);
 
-        cameraAnimation.Invoke(Platforms, false);
+        cameraAnimation.Invoke(Platforms, false, false);
+        platform.transform.localScale = scale;
+
         platforms.Add(platform);
         SetPlatformColor(2);
     }
@@ -243,14 +246,33 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    public void Reset()
+    public void Explode()
     {
-        for (int i = 1; i < transform.childCount; i++)
+        int firstPlatform = Mathf.Max(transform.childCount - 6, 0);
+
+        for (int p = transform.childCount - 1; p > firstPlatform; p--)
         {
-            Destroy(transform.GetChild(i).gameObject);
+            GameObject platform = transform.GetChild(p).gameObject;
+
+            if (platform.GetComponent<Rigidbody>() == null)
+            {
+                platform.AddComponent<Rigidbody>().mass = 10.0f;
+            }
         }
 
-        cameraAnimation.Invoke(0, true);
+        Vector3 position = new Vector3(0.1f, Platforms * platformHeight - 1.0f, 0.1f);
+        Instantiate(spherePrefab, position, Quaternion.identity, transform);
+        cameraAnimation.Invoke(Platforms, true, true);
+    }
+
+    public void Reset()
+    {
+        for (int c = 1; c < transform.childCount; c++)
+        {
+            Destroy(transform.GetChild(c).gameObject);
+        }
+
+        cameraAnimation.Invoke(0, true, false);
         platforms.Clear();
     }
 }

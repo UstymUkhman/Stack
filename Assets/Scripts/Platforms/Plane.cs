@@ -95,5 +95,5 @@ public class Plane : MonoBehaviour
         10.0f * side / GetPlaneSize(side);
 
     private void Destroy() =>
-        Destroy(gameObject, 1.0f / Time.deltaTime);
+        Destroy(gameObject, animationDuration / 60.0f);
 }

@@ -69,12 +69,15 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Reset();
+            StartCoroutine(Reset());
         }
     }
 
-    private void Reset()
+    private IEnumerator Reset()
     {
+        stack.Explode();
+        yield return new WaitForSeconds(1.0f);
+
         stack.Reset();
         started = false;
         StartCoroutine(Initialize());

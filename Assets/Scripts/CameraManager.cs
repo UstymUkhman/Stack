@@ -17,18 +17,29 @@ public class CameraManager : MonoBehaviour
         initialSize = camera.orthographicSize;
     }
 
-    public void CheckCameraAnimation(int platforms, bool gameOver)
+    public void CheckCameraAnimation(int platforms, bool gameOver, bool explode)
     {
+        bool translateUp = explode || (!gameOver && platforms > 3);
         float zoom = Mathf.Min(Mathf.Floor(platforms / 15.0f), 4.0f);
 
-        if (gameOver && platforms == 0) Reset();
-        else if (!gameOver && platforms > 3) MoveUp();
-        else if (gameOver && zoom > 0.0f) ZoomOut(zoom);
+        if (gameOver && platforms == 0)
+        {
+            Reset();
+        }
+        else if (translateUp)
+        {
+            if (explode) StartCoroutine(AnimateSize(initialSize));
+            MoveUp(System.Convert.ToInt32(explode) * 3.0f + 0.2f);
+        }
+        else if (gameOver && zoom > 0.0f)
+        {
+            ZoomOut(zoom);
+        }
     }
 
-    private void MoveUp()
+    private void MoveUp(float translate)
     {
-        StartCoroutine(AnimateVertically(transform.position.y + 0.2f));
+        StartCoroutine(AnimateVertically(transform.position.y + translate));
     }
 
     private void ZoomOut(float zoomLevel)
@@ -42,15 +53,11 @@ public class CameraManager : MonoBehaviour
 
     private void Reset()
     {
-        if (transform.position.y > initialHeight)
-        {
-            StartCoroutine(AnimateVertically(initialHeight));
-        }
-
-        if (camera.orthographicSize > initialSize)
-        {
-            StartCoroutine(AnimateSize(initialSize));
-        }
+        transform.position = new Vector3(
+            transform.position.x,
+            initialHeight,
+            transform.position.z
+        );
     }
 
     private IEnumerator AnimateVertically(float y)
