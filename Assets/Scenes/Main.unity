@@ -600,8 +600,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   tollerance: 0.025
-  staticPrefab: {fileID: 6834170355017809480, guid: 50e7e6570754a6d46b2a8876647423a9, type: 3}
   dynamicPrefab: {fileID: 2871187256207030170, guid: 9a4715e96adbd2b47b1574cd5041534a, type: 3}
+  staticPrefab: {fileID: 6834170355017809480, guid: 50e7e6570754a6d46b2a8876647423a9, type: 3}
   cuttedPrefab: {fileID: 3602061764606717508, guid: d5b0a7cdf9becb14da375ba33f92f37f, type: 3}
   planePrefab: {fileID: 1880389372485886656, guid: 5b6a9072661b61a4b96354e605352e6b, type: 3}
 --- !u!114 &1407516807

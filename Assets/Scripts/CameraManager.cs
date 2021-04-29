@@ -22,8 +22,8 @@ public class CameraManager : MonoBehaviour
         float zoom = Mathf.Min(Mathf.Floor(platforms / 15.0f), 4.0f);
 
         if (gameOver && platforms == 0) Reset();
+        else if (!gameOver && platforms > 3) MoveUp();
         else if (gameOver && zoom > 0.0f) ZoomOut(zoom);
-        else if (platforms > 3) MoveUp();
     }
 
     private void MoveUp()

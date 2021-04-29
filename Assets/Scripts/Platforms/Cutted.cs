@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CuttedPlatform : MonoBehaviour
+public class Cutted : MonoBehaviour
 {
     private const float BOTTOM_LIMIT = -4.0f;
     private float MASS_MULTIPLIER;

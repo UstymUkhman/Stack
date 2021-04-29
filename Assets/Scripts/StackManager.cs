@@ -21,7 +21,7 @@ public class StackManager : MonoBehaviour
     [SerializeField] private GameObject cuttedPrefab;
     [SerializeField] private GameObject planePrefab;
 
-    private DynamicPlatform dynamicPlatformManager;
+    private Dynamic dynamicPlatformManager;
     private int perfectPlatformsCount = 0;
     private float platformHeight = 0.0f;
 
@@ -173,7 +173,7 @@ public class StackManager : MonoBehaviour
         GameObject platform = Instantiate(dynamicPrefab, Vector3.zero, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
 
-        dynamicPlatformManager = platform.GetComponent<DynamicPlatform>();
+        dynamicPlatformManager = platform.GetComponent<Dynamic>();
         dynamicPlatformManager.y = Platforms * platformHeight;
         dynamicPlatformManager.SetDirection(isLeft);
         dynamicPlatformManager.offset = offset;
@@ -220,7 +220,7 @@ public class StackManager : MonoBehaviour
 
         if (index > 0)
         {
-            PlatformPlane platformPlane = plane.GetComponent<PlatformPlane>();
+            Plane platformPlane = plane.GetComponent<Plane>();
             StartCoroutine(platformPlane.AnimateScale());
             platformPlane.AddRenderQueue(index);
         }
@@ -229,13 +229,16 @@ public class StackManager : MonoBehaviour
     private IEnumerator SpawnPlanes(bool matched)
     {
         Transform staticTransform = platforms[Platforms - 1].transform;
-        int animatedPlanes = Mathf.Min(perfectPlatformsCount - 3, 3);
+        int animatedPlanes = Mathf.Min(perfectPlatformsCount - 3, 5);
 
-        if (matched) SpawnPlane(staticTransform, 0);
+        if (matched)
+        {
+            SpawnPlane(staticTransform, 0);
+        }
 
         for (int p = 1; p <= animatedPlanes; p++)
         {
-            yield return new WaitForSeconds(p * 0.1f);
+            yield return new WaitForSeconds(p * 0.05f);
             SpawnPlane(staticTransform, p);
         }
     }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DynamicPlatform : MonoBehaviour
+public class Dynamic : MonoBehaviour
 {
     [HideInInspector] public float offset { set; private get; }
     [HideInInspector] public float y { set; private get; }

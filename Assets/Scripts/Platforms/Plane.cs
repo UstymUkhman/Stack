@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class PlatformPlane : MonoBehaviour
+public class Plane : MonoBehaviour
 {
     [Header("Margin from plane border (range 0.0 - 1.0):")]
     [SerializeField] private float borderMargin = 0.1f;
@@ -11,7 +11,7 @@ public class PlatformPlane : MonoBehaviour
 
     private const float PLANE_SIZE   = 0.12f;
     private const float HOLE_SIZE    = 10.0f;
-    private const int MAX_MASK_QUEUE = 3010;
+    private const int MAX_MASK_QUEUE = 3012;
 
     private float animationDuration;
     private Transform holeTransform;
@@ -95,5 +95,5 @@ public class PlatformPlane : MonoBehaviour
         10.0f * side / GetPlaneSize(side);
 
     private void Destroy() =>
-        Destroy(gameObject);
+        Destroy(gameObject, 1.0f / Time.deltaTime);
 }
