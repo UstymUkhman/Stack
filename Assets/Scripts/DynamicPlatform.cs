@@ -8,12 +8,12 @@ public class DynamicPlatform : MonoBehaviour
     private Animator animator;
     private bool moveLeft;
 
-    void Awake()
+    private void Awake()
     {
         animator = GetComponent<Animator>();
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
         float x = gameObject.transform.localPosition.x;
         float z = gameObject.transform.localPosition.z;

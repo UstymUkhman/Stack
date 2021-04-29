@@ -16,17 +16,14 @@ public class StackManager : MonoBehaviour
     [Header("Offset to ignore for a perfect timing:")]
     [SerializeField] private float tollerance = 0.025f;
 
-    [SerializeField] private GameObject staticPrefab;
     [SerializeField] private GameObject dynamicPrefab;
+    [SerializeField] private GameObject staticPrefab;
     [SerializeField] private GameObject cuttedPrefab;
     [SerializeField] private GameObject planePrefab;
 
     private DynamicPlatform dynamicPlatformManager;
     private int perfectPlatformsCount = 0;
     private float platformHeight = 0.0f;
-
-    private bool firstStart = false;
-    private bool gameOver = true;
 
     private bool isLeft {
         get {
@@ -40,75 +37,28 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    void Awake()
-    {
-        CreateFirstPlatform();
-    }
-
-    void Start()
-    {
-        SetPlatformColor();
-        StartCoroutine(Init());
-    }
-
-    private void CreateFirstPlatform()
+    public void CreateFirstPlatform()
     {
         GameObject platform = transform.GetChild(0).gameObject;
         platformHeight = platform.transform.localScale.y;
+
         platforms.Add(platform);
+        SetPlatformColor();
     }
 
     private void SetPlatformColor(int last = 1)
     {
-        Color platformColor = ColorManager.Instance.GetPlatformColor(Platforms - last);
+        Color platformColor = ColorManager.GetPlatformColor(Platforms - last);
         platforms[Platforms - 1].GetComponent<MeshRenderer>().material.SetColor("_Color", platformColor);
     }
 
-    private IEnumerator Init()
+    public bool StopDynamicPlatform()
     {
-        yield return new WaitForSeconds(1.0f);
-        gameOver = false;
+        dynamicPlatformManager.Stop();
+        return CalculatePlatformDistance();
     }
 
-    void Update()
-    {
-        if (gameOver && !firstStart)
-        {
-            return;
-        }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            OnTap();
-        }
-    }
-
-    private void OnTap()
-    {
-        if (!firstStart)
-        {
-            Play();
-            return;
-        }
-
-        if (gameOver)
-        {
-            Reset();
-        }
-        else
-        {
-            dynamicPlatformManager.Stop();
-            CalculatePlatformDistance();
-        }
-    }
-
-    private void Play()
-    {
-        SpawnDynamicPlatform();
-        firstStart = true;
-    }
-
-    private void CalculatePlatformDistance()
+    private bool CalculatePlatformDistance()
     {
         bool left = !isLeft;
 
@@ -167,8 +117,10 @@ public class StackManager : MonoBehaviour
         {
             ConvertDynamicPlatform(dynamicPlatform);
             cameraAnimation.Invoke(Platforms, true);
-            gameOver = true;
+            return true;
         }
+
+        return false;
     }
 
     private void CalculateCuttedPlatform(Vector3 dynamicPosition, Vector3 staticPosition, float detachment, float width, float depth)
@@ -216,7 +168,7 @@ public class StackManager : MonoBehaviour
         SetPlatformColor(2);
     }
 
-    private void SpawnDynamicPlatform(float width = 1.2f, float depth = 1.2f, float offset = 0.0f)
+    public void SpawnDynamicPlatform(float width = 1.2f, float depth = 1.2f, float offset = 0.0f)
     {
         GameObject platform = Instantiate(dynamicPrefab, Vector3.zero, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
@@ -236,7 +188,7 @@ public class StackManager : MonoBehaviour
         GameObject platform = Instantiate(cuttedPrefab, position, Quaternion.identity, transform);
         platform.transform.localScale = new Vector3(width, platformHeight, depth);
 
-        Color platformColor = ColorManager.Instance.GetPlatformColor(Platforms - 1);
+        Color platformColor = ColorManager.GetPlatformColor(Platforms - 1);
         platform.GetComponent<MeshRenderer>().material.SetColor("_Color", platformColor);
     }
 
@@ -288,20 +240,14 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    private void Reset()
+    public void Reset()
     {
         for (int i = 1; i < transform.childCount; i++)
         {
             Destroy(transform.GetChild(i).gameObject);
         }
 
-        platforms.Clear();
-        firstStart = false;
-
-        CreateFirstPlatform();
-        SetPlatformColor();
-
-        StartCoroutine(Init());
         cameraAnimation.Invoke(0, true);
+        platforms.Clear();
     }
 }

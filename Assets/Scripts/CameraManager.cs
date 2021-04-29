@@ -10,7 +10,7 @@ public class CameraManager : MonoBehaviour
     private float initialSize;
     private new Camera camera;
 
-    void Awake()
+    private void Awake()
     {
         camera = Camera.main;
         initialHeight = transform.position.y;

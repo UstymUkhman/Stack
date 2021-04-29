@@ -13,7 +13,7 @@ public class BackgroundCanvas : MonoBehaviour
     private RawImage[] background = new RawImage[2];
     private int currentIndex = 0;
 
-    void Awake()
+    private void Awake()
     {
         background[0] = transform.GetChild(0).GetComponent<RawImage>();
         background[1] = transform.GetChild(1).GetComponent<RawImage>();
@@ -28,7 +28,7 @@ public class BackgroundCanvas : MonoBehaviour
     private void SetBackgroundTexture(int index)
     {
         Texture2D texture = new Texture2D(1, 2);
-        Color[] colors = ColorManager.Instance.GetPlatformColors();
+        Color[] colors = ColorManager.GetPlatformColors();
 
         texture.SetPixels(new Color[] { colors[0], colors[1] });
 

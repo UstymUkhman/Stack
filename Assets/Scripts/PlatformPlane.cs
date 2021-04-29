@@ -9,9 +9,9 @@ public class PlatformPlane : MonoBehaviour
     [Header("Scale multiplier for fade out animation:")]
     [SerializeField] private float scaleFactor = 1.5f;
 
-    private readonly float PLANE_SIZE   = 0.12f;
-    private readonly float HOLE_SIZE    = 10.0f;
-    private readonly int MAX_MASK_QUEUE = 3010;
+    private const float PLANE_SIZE   = 0.12f;
+    private const float HOLE_SIZE    = 10.0f;
+    private const int MAX_MASK_QUEUE = 3010;
 
     private float animationDuration;
     private Transform holeTransform;
@@ -19,7 +19,7 @@ public class PlatformPlane : MonoBehaviour
     private Material planeMaterial;
     private Material holeMaterial;
 
-    void Awake()
+    private void Awake()
     {
         holeTransform = transform.GetChild(0).transform;
         planeMaterial = GetComponent<MeshRenderer>().material;
@@ -31,7 +31,7 @@ public class PlatformPlane : MonoBehaviour
             .length;
     }
 
-    void Start()
+    private void Start()
     {
         transform.localScale = new Vector3(
             GetPlaneSize(transform.localScale.x),
@@ -94,8 +94,6 @@ public class PlatformPlane : MonoBehaviour
     private float GetHoleSize(float side) =>
         10.0f * side / GetPlaneSize(side);
 
-    private void Destroy()
-    {
+    private void Destroy() =>
         Destroy(gameObject);
-    }
 }

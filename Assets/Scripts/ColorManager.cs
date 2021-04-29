@@ -1,41 +1,31 @@
 using UnityEngine;
 
-public class ColorManager : MonoBehaviour
+public static class ColorManager
 {
-    private System.Random random = new System.Random();
-    private Color[] platformColors = new Color[3];
+    private static System.Random random = new System.Random();
+    private static Color[] platformColors = new Color[3];
 
-    private static ColorManager instance;
-    private int lastPlatformIndex;
-    private int colorsAmount = 0;
-    private int colorBlocks;
+    private static int lastPlatformIndex;
+    private static int colorsAmount = 0;
+    private static int colorBlocks;
 
-    public static ColorManager Instance {
-        get {
-            return instance;
-        }
-    }
-
-    void Awake()
+    public static Color GetPlatformColor(int platformIndex)
     {
-        if (instance != null && instance != this)
+        if (platformIndex == colorsAmount)
         {
-            Destroy(this.gameObject);
+            SetPlatformColors(platformIndex);
         }
-        else
-        {
-            SetPlatformColors(0);
-            instance = this;
-        }
+
+        return Color.Lerp(
+            platformColors[0],
+            platformColors[1],
+            1.0f / (colorBlocks - 1) * (
+                platformIndex - lastPlatformIndex
+            )
+        );
     }
 
-    public Color GetRandomColor() =>
-        Random.ColorHSV(0.0f, 1.0f, 0.1f, 1.0f, 0.25f, 1.0f);
-
-    public Color[] GetPlatformColors() =>
-        new Color[] { platformColors[0], platformColors[2] };
-
-    private void SetPlatformColors(int index)
+    public static void SetPlatformColors(int index)
     {
         colorBlocks = random.Next(5, 25);
         colorsAmount += colorBlocks;
@@ -52,27 +42,9 @@ public class ColorManager : MonoBehaviour
         platformColors[2] = GetRandomColor();
     }
 
-    public Color GetPlatformColor(int platformIndex)
-    {
-        if (platformIndex == colorsAmount)
-        {
-            SetPlatformColors(platformIndex);
-        }
+    public static Color[] GetPlatformColors() =>
+        new Color[] { platformColors[0], platformColors[2] };
 
-        return Color.Lerp(
-            platformColors[0],
-            platformColors[1],
-            1.0f / (colorBlocks - 1) * (
-                platformIndex - lastPlatformIndex
-            )
-        );
-    }
-
-    void OnDestroy()
-    {
-        if (this == instance)
-        {
-            instance = null;
-        }
-    }
+    private static Color GetRandomColor() =>
+        Random.ColorHSV(0.0f, 1.0f, 0.1f, 1.0f, 0.25f, 1.0f);
 }
