@@ -20,7 +20,6 @@ public class GameManager : MonoBehaviour
         if (instance == null || instance == this)
         {
             stack = GetComponent<StackManager>();
-            ColorManager.SetPlatformColors(0);
             instance = this;
         }
         else
@@ -36,7 +35,9 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Initialize()
     {
+        ColorManager.SetPlatformColors(0);
         stack.CreateFirstPlatform();
+
         yield return new WaitForSeconds(1.0f);
         gameOver = false;
     }

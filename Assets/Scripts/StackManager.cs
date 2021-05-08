@@ -24,6 +24,8 @@ public class StackManager : MonoBehaviour
 
     private Dynamic dynamicPlatformManager;
     private int perfectPlatformsCount = 0;
+
+    private Vector3 firstPlatformPosition;
     private float platformHeight = 0.0f;
 
     private bool isLeft {
@@ -41,8 +43,10 @@ public class StackManager : MonoBehaviour
     public void CreateFirstPlatform()
     {
         GameObject platform = transform.GetChild(0).gameObject;
+        firstPlatformPosition = platform.transform.localPosition;
         platformHeight = platform.transform.localScale.y;
 
+        platform.SetActive(true);
         platforms.Add(platform);
         SetPlatformColor();
     }
@@ -248,31 +252,38 @@ public class StackManager : MonoBehaviour
 
     public void Explode()
     {
-        int firstPlatform = Mathf.Max(transform.childCount - 6, 0);
+        int staticPlatforms = 0;
+        float lastPlatformPosition = 0.0f;
 
-        for (int p = transform.childCount - 1; p > firstPlatform; p--)
+        for (int p = transform.childCount - 1; p > 0; p--)
         {
             GameObject platform = transform.GetChild(p).gameObject;
+            lastPlatformPosition = platform.transform.localPosition.y;
 
             if (platform.GetComponent<Rigidbody>() == null)
             {
                 platform.AddComponent<Rigidbody>().mass = 10.0f;
+                if (++staticPlatforms == 3) break;
             }
         }
 
-        Vector3 position = new Vector3(0.1f, Platforms * platformHeight - 1.0f, 0.1f);
+        Vector3 position = new Vector3(0.1f, lastPlatformPosition, 0.1f);
         Instantiate(spherePrefab, position, Quaternion.identity, transform);
         cameraAnimation.Invoke(Platforms, true, true);
     }
 
     public void Reset()
     {
+        GameObject platform = transform.GetChild(0).gameObject;
+        platform.transform.localPosition = firstPlatformPosition;
+
         for (int c = 1; c < transform.childCount; c++)
         {
             Destroy(transform.GetChild(c).gameObject);
         }
 
         cameraAnimation.Invoke(0, true, false);
+        platform.SetActive(false);
         platforms.Clear();
     }
 }

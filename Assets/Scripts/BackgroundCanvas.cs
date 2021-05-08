@@ -8,7 +8,7 @@ public class BackgroundCanvas : MonoBehaviour
     [SerializeField] private float crossFadeDuration = 5.0f;
 
     [Header("Background gradient color change frequency (in seconds):")]
-    [SerializeField] private float backgroundDelay = 180.0f;
+    [SerializeField] private float backgroundDelay = 60.0f;
 
     private RawImage[] background = new RawImage[2];
     private int currentIndex = 0;
@@ -17,7 +17,10 @@ public class BackgroundCanvas : MonoBehaviour
     {
         background[0] = transform.GetChild(0).GetComponent<RawImage>();
         background[1] = transform.GetChild(1).GetComponent<RawImage>();
+    }
 
+    private void Start()
+    {
         SetBackgroundTexture(0);
         SetBackgroundTexture(1);
 

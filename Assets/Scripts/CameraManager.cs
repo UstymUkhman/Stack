@@ -6,6 +6,9 @@ public class CameraManager : MonoBehaviour
     [Header("\"Move Up\", \"Zoom Out\" and \"Reset\" animations duration (in seconds):")]
     [SerializeField] private float animationDuration = 0.5f;
 
+    [Header("Camera starts following the stack after this platform:")]
+    [SerializeField] private int followPlatform = 3;
+
     private float initialHeight;
     private float initialSize;
     private new Camera camera;
@@ -19,27 +22,25 @@ public class CameraManager : MonoBehaviour
 
     public void CheckCameraAnimation(int platforms, bool gameOver, bool explode)
     {
-        bool translateUp = explode || (!gameOver && platforms > 3);
         float zoom = Mathf.Min(Mathf.Floor(platforms / 15.0f), 4.0f);
 
         if (gameOver && platforms == 0)
         {
             Reset();
         }
-        else if (translateUp)
+        else if (explode)
         {
-            if (explode) StartCoroutine(AnimateSize(initialSize));
-            MoveUp(System.Convert.ToInt32(explode) * 3.0f + 0.2f);
+            StartCoroutine(AnimateSize(initialSize));
+        }
+        else if (!gameOver && platforms > followPlatform)
+        {
+            float offset = (platforms - followPlatform) * 0.2f;
+            StartCoroutine(AnimateVertically(initialHeight + offset));
         }
         else if (gameOver && zoom > 0.0f)
         {
             ZoomOut(zoom);
         }
-    }
-
-    private void MoveUp(float translate)
-    {
-        StartCoroutine(AnimateVertically(transform.position.y + translate));
     }
 
     private void ZoomOut(float zoomLevel)

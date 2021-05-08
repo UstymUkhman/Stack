@@ -467,6 +467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animationDuration: 0.5
+  followPlatform: 3
 --- !u!1 &1153132802
 GameObject:
   m_ObjectHideFlags: 0
@@ -650,7 +651,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   crossFadeDuration: 5
-  backgroundDelay: 180
+  backgroundDelay: 60
 --- !u!114 &1420546853
 MonoBehaviour:
   m_ObjectHideFlags: 0

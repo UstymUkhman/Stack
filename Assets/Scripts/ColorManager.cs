@@ -43,7 +43,7 @@ public static class ColorManager
     }
 
     public static Color[] GetPlatformColors() =>
-        new Color[] { platformColors[0], platformColors[2] };
+        new Color[] { platformColors[1], platformColors[2] };
 
     private static Color GetRandomColor() =>
         Random.ColorHSV(0.0f, 1.0f, 0.1f, 1.0f, 0.25f, 1.0f);
