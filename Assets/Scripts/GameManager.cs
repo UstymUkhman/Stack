@@ -1,8 +1,12 @@
 using UnityEngine;
+using UnityEngine.Events;
 using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Title Fade Out animation event:")]
+    [SerializeField] private UnityEvent titleDispose = new UnityEvent();
+
     private static GameManager instance;
     private StackManager stack;
 
@@ -38,7 +42,7 @@ public class GameManager : MonoBehaviour
         ColorManager.SetPlatformColors(0);
         stack.CreateFirstPlatform();
 
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(5.0f);
         gameOver = false;
     }
 
@@ -60,6 +64,7 @@ public class GameManager : MonoBehaviour
         if (!started)
         {
             stack.SpawnDynamicPlatform();
+            titleDispose.Invoke();
             started = true;
             return;
         }
