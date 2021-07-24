@@ -4,7 +4,7 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Title Fade Out animation event:")]
+    [Header("Title fade out animation event:")]
     [SerializeField] private UnityEvent titleDispose = new UnityEvent();
 
     private static GameManager instance;
@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
         ColorManager.SetPlatformColors(0);
         stack.CreateFirstPlatform();
 
+        // Wait for 1.0f if no title animation.
         yield return new WaitForSeconds(5.0f);
         gameOver = false;
     }
