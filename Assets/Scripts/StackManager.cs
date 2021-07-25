@@ -40,15 +40,20 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    public void CreateFirstPlatform()
+    public IEnumerator CreateFirstPlatform(float delay)
     {
         GameObject platform = transform.GetChild(0).gameObject;
+        Animator animator = platform.GetComponent<Animator>();
+
         firstPlatformPosition = platform.transform.localPosition;
         platformHeight = platform.transform.localScale.y;
 
         platform.SetActive(true);
         platforms.Add(platform);
         SetPlatformColor();
+
+        yield return new WaitForSeconds(delay);
+        animator.SetTrigger("Move");
     }
 
     private void SetPlatformColor(int last = 1)

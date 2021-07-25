@@ -9,9 +9,6 @@ public class TitleManager : MonoBehaviour
     [Header("Title animation duration (in seconds):")]
     [SerializeField] private float animationDuration = 10.0f;
 
-    private Color32 SOLID = new Color32(255, 255, 255, 255);
-    private Color32 TRANSPARENT = new Color32(255, 255, 255, 0);
-
     private List<TextMeshProUGUI> titles = new List<TextMeshProUGUI>();
 
     private void Awake()
@@ -21,7 +18,7 @@ public class TitleManager : MonoBehaviour
             TextMeshProUGUI title = transform.GetChild(c)
                 .GetComponent<TextMeshProUGUI>();
 
-            title.color = TRANSPARENT;
+            title.color = ColorManager.TRANSPARENT;
             titles.Add(title);
         }
     }
@@ -61,21 +58,22 @@ public class TitleManager : MonoBehaviour
             float time = (Time.time - startTime) / animationDuration;
 
             transform.anchoredPosition = Vector2.LerpUnclamped(position, Vector2.zero, time);
-            title.color = Color32.Lerp(TRANSPARENT, SOLID, time);
+            title.color = Color32.Lerp(ColorManager.TRANSPARENT, ColorManager.SOLID, time);
+
             yield return null;
         }
 
         transform.anchoredPosition = Vector2.zero;
-        title.color = SOLID;
+        title.color = ColorManager.SOLID;
     }
 
     public void Dispose()
     {
-        CanvasGroup group = transform.GetComponent<CanvasGroup>();
+        CanvasGroup title = transform.GetComponent<CanvasGroup>();
 
-        if (group.alpha == 1.0f)
+        if (title.alpha == 1.0f)
         {
-            StartCoroutine(FadeOut(group));
+            StartCoroutine(FadeOut(title));
         }
     }
 

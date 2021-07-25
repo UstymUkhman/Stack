@@ -2,6 +2,9 @@ using UnityEngine;
 
 public static class ColorManager
 {
+    public static readonly Color32 TRANSPARENT = new Color32(255, 255, 255, 0);
+    public static readonly Color32 SOLID = new Color32(255, 255, 255, 255);
+
     private static System.Random random = new System.Random();
     private static Color[] platformColors = new Color[3];
 

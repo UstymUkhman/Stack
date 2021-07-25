@@ -7,11 +7,17 @@ public class GameManager : MonoBehaviour
     [Header("Title fade out animation event:")]
     [SerializeField] private UnityEvent titleDispose = new UnityEvent();
 
+    [Header("\"Tap To Start\" fade in animation event:")]
+    [SerializeField] private UnityEvent tapToStart = new UnityEvent();
+
+    [Header("\"Tap To Restart\" fade in animation event:")]
+    [SerializeField] private UnityEvent tapToRestart = new UnityEvent();
+
     private static GameManager instance;
     private StackManager stack;
 
+    private bool gameStart = true;
     private bool gameOver = true;
-    private bool started = false;
 
     public static GameManager Instance {
         get {
@@ -40,44 +46,41 @@ public class GameManager : MonoBehaviour
     private IEnumerator Initialize()
     {
         ColorManager.SetPlatformColors(0);
-        stack.CreateFirstPlatform();
+        float startDelay = gameStart ? 3.0f : 1.0f;
 
-        // Wait for 1.0f if no title animation.
-        yield return new WaitForSeconds(5.0f);
-        gameOver = false;
+        StartCoroutine(stack.CreateFirstPlatform(startDelay));
+        yield return new WaitForSeconds(startDelay + 1.0f);
+
+        if (gameStart) tapToStart.Invoke();
     }
 
     private void Update()
     {
-        if (gameOver && !started)
-        {
-            return;
-        }
+        if (gameOver) return;
 
         if (Input.GetMouseButtonDown(0))
         {
-            OnScreenTap();
+            gameOver = stack.StopDynamicPlatform();
+
+            if (gameOver)
+            {
+                tapToRestart.Invoke();
+            }
         }
     }
 
-    private void OnScreenTap()
+    public void OnStart()
     {
-        if (!started)
-        {
-            stack.SpawnDynamicPlatform();
-            titleDispose.Invoke();
-            started = true;
-            return;
-        }
+        stack.SpawnDynamicPlatform();
+        titleDispose.Invoke();
 
-        if (!gameOver)
-        {
-            gameOver = stack.StopDynamicPlatform();
-        }
-        else
-        {
-            StartCoroutine(Reset());
-        }
+        gameStart = false;
+        gameOver = false;
+    }
+
+    public void OnRestart()
+    {
+        StartCoroutine(Reset());
     }
 
     private IEnumerator Reset()
@@ -86,8 +89,10 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
         stack.Reset();
-        started = false;
         StartCoroutine(Initialize());
+
+        yield return new WaitForSeconds(2.0f);
+        OnStart();
     }
 
     private void OnDestroy()
