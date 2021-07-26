@@ -4,14 +4,14 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Title fade out animation event:")]
-    [SerializeField] private UnityEvent titleDispose = new UnityEvent();
+    // [Header("Title fade out animation event:")]
+    // [SerializeField] private UnityEvent titleDispose = new UnityEvent();
 
-    [Header("\"Tap To Start\" fade in animation event:")]
-    [SerializeField] private UnityEvent tapToStart = new UnityEvent();
+    // [Header("\"Tap To Start\" fade in animation event:")]
+    // [SerializeField] private UnityEvent tapToStart = new UnityEvent();
 
-    [Header("\"Tap To Restart\" fade in animation event:")]
-    [SerializeField] private UnityEvent tapToRestart = new UnityEvent();
+    // [Header("\"Tap To Restart\" fade in animation event:")]
+    // [SerializeField] private UnityEvent tapToRestart = new UnityEvent();
 
     private static GameManager instance;
     private StackManager stack;
@@ -51,28 +51,28 @@ public class GameManager : MonoBehaviour
         StartCoroutine(stack.CreateFirstPlatform(startDelay));
         yield return new WaitForSeconds(startDelay + 1.0f);
 
-        if (gameStart) tapToStart.Invoke();
+        // if (gameStart) tapToStart.Invoke();
     }
 
     private void Update()
     {
         if (gameOver) return;
-
+        
         if (Input.GetMouseButtonDown(0))
         {
             gameOver = stack.StopDynamicPlatform();
 
-            if (gameOver)
+            /* if (gameOver)
             {
                 tapToRestart.Invoke();
-            }
+            } */
         }
     }
 
     public void OnStart()
     {
         stack.SpawnDynamicPlatform();
-        titleDispose.Invoke();
+        // titleDispose.Invoke();
 
         gameStart = false;
         gameOver = false;

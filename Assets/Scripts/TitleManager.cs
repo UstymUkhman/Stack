@@ -1,95 +1,88 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
 public class TitleManager : MonoBehaviour
 {
-    [Header("Title animation duration (in seconds):")]
-    [SerializeField] private float animationDuration = 10.0f;
-
     private List<TextMeshProUGUI> titles = new List<TextMeshProUGUI>();
+    private List<Vector2> initialPositions = new List<Vector2>();
 
     private void Awake()
     {
-        for (int c = 1; c < transform.childCount; c++)
+        foreach (Transform child in transform)
         {
-            TextMeshProUGUI title = transform.GetChild(c)
-                .GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI title = child.GetComponent<TextMeshProUGUI>();
+            RectTransform rect = title.transform.GetComponent<RectTransform>();
 
+            initialPositions.Add(rect.anchoredPosition);
             title.color = ColorManager.TRANSPARENT;
             titles.Add(title);
         }
     }
 
-    private void Start()
+    public IEnumerator Initialize()
     {
-        StartCoroutine(Initialize());
+        yield return new WaitForSeconds(0.5f);
+
+        foreach (TextMeshProUGUI title in titles)
+        {
+            StartCoroutine(Animate(title, true, 2.0f));
+        }
     }
 
-    private IEnumerator Initialize()
+    public void FadeIn()
     {
-        yield return new WaitForSeconds(1.0f);
+        foreach (TextMeshProUGUI title in titles)
+        {
+            StartCoroutine(Animate(title, true));
+        }
+    }
 
+    public void FadeOut()
+    {
         foreach (TextMeshProUGUI title in titles)
         {
             StartCoroutine(Animate(title));
         }
 
-        yield return new WaitForSeconds(1.5f);
-
-        transform
-            .GetChild(0)
-            .GetComponent<RawImage>()
-            .CrossFadeAlpha(0.0f, 1.0f, false);
+        Reset();
     }
 
-    private IEnumerator Animate(TextMeshProUGUI title)
+    private void Reset()
+    {
+        for (int t = 0; t < titles.Count; t++)
+        {
+            Transform title = titles[t].transform;
+            RectTransform rect = title.GetComponent<RectTransform>();
+
+            rect.anchoredPosition = initialPositions[t];
+            titles[t].color = ColorManager.TRANSPARENT;
+        }
+    }
+
+    private IEnumerator Animate(TextMeshProUGUI title, bool visible = false, float duration = 0.5f)
     {
         float startTime = Time.time;
-        float endTime = Time.time + animationDuration;
+        float endTime = Time.time + duration;
 
         RectTransform transform = title.transform.GetComponent<RectTransform>();
         Vector2 position = transform.anchoredPosition;
 
+        Color32 target = visible ? ColorManager.SOLID : ColorManager.TRANSPARENT;
+        Color32 current = visible ? ColorManager.TRANSPARENT : ColorManager.SOLID;
+
         while (Time.time < endTime)
         {
-            float time = (Time.time - startTime) / animationDuration;
+            float time = (Time.time - startTime) / duration;
 
             transform.anchoredPosition = Vector2.LerpUnclamped(position, Vector2.zero, time);
-            title.color = Color32.Lerp(ColorManager.TRANSPARENT, ColorManager.SOLID, time);
+            title.color = Color32.Lerp(current, target, time);
 
             yield return null;
         }
 
         transform.anchoredPosition = Vector2.zero;
-        title.color = ColorManager.SOLID;
-    }
-
-    public void Dispose()
-    {
-        CanvasGroup title = transform.GetComponent<CanvasGroup>();
-
-        if (title.alpha == 1.0f)
-        {
-            StartCoroutine(FadeOut(title));
-        }
-    }
-
-    private IEnumerator FadeOut(CanvasGroup title)
-    {
-        float startTime = Time.time;
-        float endTime = Time.time + 0.5f;
-
-        while (Time.time < endTime)
-        {
-            float time = (Time.time - startTime) / 0.5f;
-            title.alpha = Mathf.Lerp(1.0f, 0.0f, time);
-            yield return null;
-        }
-
-        title.alpha = 0.0f;
-        titles.Clear();
+        title.color = target;
     }
 }
