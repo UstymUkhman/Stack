@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 public class TitleManager : MonoBehaviour
 {
-    private List<TextMeshProUGUI> titles = new List<TextMeshProUGUI>();
     private List<Vector2> initialPositions = new List<Vector2>();
+    private List<TextMeshProUGUI> titles = new List<TextMeshProUGUI>();
 
     private void Awake()
     {
@@ -15,7 +15,7 @@ public class TitleManager : MonoBehaviour
             TextMeshProUGUI title = child.GetComponent<TextMeshProUGUI>();
             RectTransform rect = title.transform.GetComponent<RectTransform>();
 
-            initialPositions.Add(rect.anchoredPosition);
+            initialPositions.Add(rect.anchoredPosition * 0.5f);
             title.color = ColorManager.TRANSPARENT;
             titles.Add(title);
         }
@@ -33,6 +33,8 @@ public class TitleManager : MonoBehaviour
 
     public void FadeIn()
     {
+        Reset();
+
         foreach (TextMeshProUGUI title in titles)
         {
             StartCoroutine(Animate(title, true));
@@ -45,8 +47,6 @@ public class TitleManager : MonoBehaviour
         {
             StartCoroutine(Animate(title));
         }
-
-        Reset();
     }
 
     private void Reset()
@@ -69,8 +69,8 @@ public class TitleManager : MonoBehaviour
         RectTransform transform = title.transform.GetComponent<RectTransform>();
         Vector2 position = transform.anchoredPosition;
 
-        Color32 target = visible ? ColorManager.SOLID : ColorManager.TRANSPARENT;
-        Color32 current = visible ? ColorManager.TRANSPARENT : ColorManager.SOLID;
+        Color32 target = visible ? ColorManager.SOLID_WHITE : ColorManager.TRANSPARENT;
+        Color32 current = visible ? ColorManager.TRANSPARENT : ColorManager.SOLID_WHITE;
 
         while (Time.time < endTime)
         {

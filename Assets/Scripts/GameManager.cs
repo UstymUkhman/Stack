@@ -4,14 +4,8 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-    // [Header("Title fade out animation event:")]
-    // [SerializeField] private UnityEvent titleDispose = new UnityEvent();
-
-    // [Header("\"Tap To Start\" fade in animation event:")]
-    // [SerializeField] private UnityEvent tapToStart = new UnityEvent();
-
-    // [Header("\"Tap To Restart\" fade in animation event:")]
-    // [SerializeField] private UnityEvent tapToRestart = new UnityEvent();
+    [Header("On \"Game Over\" UI animation event:")]
+    [SerializeField] private UnityEvent onGameOver = new UnityEvent();
 
     private static GameManager instance;
     private StackManager stack;
@@ -40,18 +34,16 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(Initialize());
+        Initialize();
     }
 
-    private IEnumerator Initialize()
+    private void Initialize()
     {
         ColorManager.SetPlatformColors(0);
-        float startDelay = gameStart ? 3.0f : 1.0f;
 
-        StartCoroutine(stack.CreateFirstPlatform(startDelay));
-        yield return new WaitForSeconds(startDelay + 1.0f);
-
-        // if (gameStart) tapToStart.Invoke();
+        StartCoroutine(stack.CreateFirstPlatform(
+            System.Convert.ToInt32(gameStart) * 3.0f
+        ));
     }
 
     private void Update()
@@ -62,18 +54,16 @@ public class GameManager : MonoBehaviour
         {
             gameOver = stack.StopDynamicPlatform();
 
-            /* if (gameOver)
+            if (gameOver)
             {
-                tapToRestart.Invoke();
-            } */
+                onGameOver.Invoke();
+            }
         }
     }
 
     public void OnStart()
     {
         stack.SpawnDynamicPlatform();
-        // titleDispose.Invoke();
-
         gameStart = false;
         gameOver = false;
     }
@@ -89,10 +79,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
         stack.Reset();
-        StartCoroutine(Initialize());
-
-        yield return new WaitForSeconds(2.0f);
-        OnStart();
+        Initialize();
     }
 
     private void OnDestroy()

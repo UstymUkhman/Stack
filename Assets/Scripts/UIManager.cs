@@ -9,8 +9,9 @@ public class UIManager : MonoBehaviour
     private bool visibleStart;
     private bool visibleRestart;
 
-    private CanvasGroup canvas;
     private RawImage background;
+    private CanvasGroup canvas;
+    private RawImage shadow;
 
     [SerializeField] private TitleManager title;
     [SerializeField] private TextMeshProUGUI ctaStart;
@@ -24,11 +25,25 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
-        background = transform.GetComponentInChildren<RawImage>();
+        background = transform.GetChild(0).GetComponent<RawImage>();
+        shadow = transform.GetChild(1).GetComponent<RawImage>();
         canvas = transform.GetComponent<CanvasGroup>();
 
         ctaRestart.color = ColorManager.TRANSPARENT;
         ctaStart.color = ColorManager.TRANSPARENT;
+
+        Texture2D texture = new Texture2D(1, 2);
+
+        texture.SetPixels(new Color[] {
+            ColorManager.SOLID_BLACK,
+            ColorManager.TRANSPARENT
+        });
+
+        texture.Apply();
+        shadow.texture = texture;
+
+        shadow.texture.wrapMode = TextureWrapMode.Clamp;
+        shadow.texture.filterMode = FilterMode.Bilinear;
     }
 
     private void Start()
@@ -42,7 +57,7 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(2.5f);
 
         background.CrossFadeAlpha(0.0f, 1.0f, false);
-        StartCoroutine(ShowStart());
+        StartCoroutine(ShowStart(true));
     }
 
     private void Update()
@@ -54,20 +69,41 @@ public class UIManager : MonoBehaviour
                 StartCoroutine(HideStart());
             }
 
-            /* else if (visibleRestart)
+            else if (visibleRestart)
             {
                 HideRestart();
-            } */
+            }
         }
     }
 
-    private IEnumerator ShowStart()
+    private IEnumerator ShowStart(bool initial = false)
     {
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(
+            1.0f + System.Convert.ToInt32(!initial) * 0.5f
+        );
+
         StartCoroutine(FadeCTA(ctaStart));
+        if (!initial) title.FadeIn();
 
         canvas.interactable = true;
         visibleStart = true;
+    }
+
+    public void OnGameOver()
+    {
+        StartCoroutine(ShowRestart());
+    }
+
+    private IEnumerator ShowRestart()
+    {
+        yield return new WaitForSeconds(0.5f);
+        // shadow.CrossFadeAlpha(1.0f, 0.5f, false);
+
+        StartCoroutine(FadeCTA(ctaRestart));
+        yield return new WaitForSeconds(0.5f);
+
+        canvas.interactable = true;
+        visibleRestart = true;
     }
 
     private IEnumerator HideStart()
@@ -81,13 +117,23 @@ public class UIManager : MonoBehaviour
         start.Invoke();
     }
 
+    private void HideRestart()
+    {
+        visibleRestart = false;
+        canvas.interactable = false;
+
+        StartCoroutine(FadeCTA(ctaRestart, false));
+        StartCoroutine(ShowStart(false));
+        restart.Invoke();
+    }
+
     private IEnumerator FadeCTA(TextMeshProUGUI cta, bool visible = true, float duration = 0.5f)
     {
         float startTime = Time.time;
         float endTime = Time.time + duration;
 
-        Color32 target = visible ? ColorManager.SOLID : ColorManager.TRANSPARENT;
-        Color32 current = visible ? ColorManager.TRANSPARENT : ColorManager.SOLID;
+        Color32 target = visible ? ColorManager.SOLID_WHITE : ColorManager.TRANSPARENT;
+        Color32 current = visible ? ColorManager.TRANSPARENT : ColorManager.SOLID_WHITE;
 
         while (Time.time < endTime)
         {
@@ -98,62 +144,4 @@ public class UIManager : MonoBehaviour
 
         cta.color = target;
     }
-
-    /* private void ShowCTA(TextMeshProUGUI cta)
-    {
-        cta.color = ColorManager.SOLID;
-        
-        canvas.interactable = true;
-    } */
-
-    /* public void HideStart()
-    {
-        visibleStart = false;
-        start.Invoke();
-        HideCTA();
-    }
-
-    public void ShowRestart()
-    {
-        ctaStart.color = ColorManager.TRANSPARENT;
-        StartCoroutine(OnRestart());
-    }
-
-    private IEnumerator OnRestart()
-    {
-        yield return new WaitForSeconds(0.5f);
-        visibleRestart = true;
-        ShowCTA(ctaRestart);
-    }
-
-    public void HideRestart()
-    {
-        visibleRestart = false;
-        restart.Invoke();
-        HideCTA();
-    }
-
-    private void HideCTA()
-    {
-        StartCoroutine(FadeAlpha(0.5f, false));
-        canvas.interactable = false;
-    } */
-
-    /* private IEnumerator FadeAlpha(float duration, bool visible = true)
-    {
-        float startTime = Time.time;
-        float endTime = Time.time + duration;
-
-        float target = visible ? 1.0f : 0.0f;
-        float current = visible ? 0.0f : 1.0f;
-
-        while (Time.time < endTime)
-        {
-            float time = (Time.time - startTime) / duration;
-            canvas.alpha = Mathf.Lerp(current, target, time);
-            yield return null;
-        }
-
-        canvas.alpha = target;
-    } */
 }
