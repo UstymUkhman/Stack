@@ -255,7 +255,7 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    public void Explode()
+    public IEnumerator Explode()
     {
         int staticPlatforms = 0;
         float lastPlatformPosition = 0.0f;
@@ -273,8 +273,11 @@ public class StackManager : MonoBehaviour
         }
 
         Vector3 position = new Vector3(0.1f, lastPlatformPosition, 0.1f);
-        Instantiate(spherePrefab, position, Quaternion.identity, transform);
+        GameObject sphere = Instantiate(spherePrefab, position, Quaternion.identity, transform);
+
         cameraAnimation.Invoke(Platforms, true, true);
+        yield return new WaitForSeconds(0.1f);
+        Destroy(sphere);
     }
 
     public void Reset()

@@ -11,7 +11,10 @@ public class CameraManager : MonoBehaviour
 
     private float initialHeight;
     private float initialSize;
-    private new Camera camera;
+
+#pragma warning disable CS0108
+    private Camera camera;
+#pragma warning restore CS0108
 
     private void Awake()
     {
@@ -26,10 +29,18 @@ public class CameraManager : MonoBehaviour
 
         if (gameOver && platforms == 0)
         {
-            Reset();
+            transform.position = new Vector3(
+                transform.position.x,
+                initialHeight,
+                transform.position.z
+            );
         }
         else if (explode)
         {
+            float offset = zoom * 2.5f + 5.0f;
+            float target = transform.position.y + offset;
+
+            StartCoroutine(AnimateVertically(target));
             StartCoroutine(AnimateSize(initialSize));
         }
         else if (!gameOver && platforms > followPlatform)
@@ -50,15 +61,6 @@ public class CameraManager : MonoBehaviour
 
         StartCoroutine(AnimateVertically(initialHeight + scale));
         StartCoroutine(AnimateSize(camera.orthographicSize + size));
-    }
-
-    private void Reset()
-    {
-        transform.position = new Vector3(
-            transform.position.x,
-            initialHeight,
-            transform.position.z
-        );
     }
 
     private IEnumerator AnimateVertically(float y)

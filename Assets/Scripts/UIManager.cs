@@ -57,6 +57,7 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(2.5f);
 
         background.CrossFadeAlpha(0.0f, 1.0f, false);
+        shadow.CrossFadeAlpha(0.0f, 0.0f, true);
         StartCoroutine(ShowStart(true));
     }
 
@@ -97,7 +98,7 @@ public class UIManager : MonoBehaviour
     private IEnumerator ShowRestart()
     {
         yield return new WaitForSeconds(0.5f);
-        // shadow.CrossFadeAlpha(1.0f, 0.5f, false);
+        shadow.CrossFadeAlpha(1.0f, 0.5f, false);
 
         StartCoroutine(FadeCTA(ctaRestart));
         yield return new WaitForSeconds(0.5f);
@@ -123,6 +124,8 @@ public class UIManager : MonoBehaviour
         canvas.interactable = false;
 
         StartCoroutine(FadeCTA(ctaRestart, false));
+        shadow.CrossFadeAlpha(0.0f, 0.5f, false);
+
         StartCoroutine(ShowStart(false));
         restart.Invoke();
     }

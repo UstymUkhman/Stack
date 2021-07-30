@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | Stack</title>
+  </head>
+  <body style="text-align: center">
+    <canvas id="unity-canvas" width=540 height=960 style="width: 540px; height: 960px; background: #232323"></canvas>
+    <script src="Build/Build.loader.js"></script>
+    <script>
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: "Build/Build.data",
+        frameworkUrl: "Build/Build.framework.js",
+        codeUrl: "Build/Build.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "UstymUkhman",
+        productName: "Stack",
+        productVersion: "0.0.1",
+        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+      });
+    </script>
+  </body>
+</html>

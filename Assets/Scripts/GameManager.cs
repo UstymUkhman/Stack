@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Reset()
     {
-        stack.Explode();
+        StartCoroutine(stack.Explode());
         yield return new WaitForSeconds(1.0f);
 
         stack.Reset();
