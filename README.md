@@ -1,3 +1,5 @@
-# Stack
+# [Stack](https://ustymukhman.github.io/Stack/Build/)
 
-> [Stack App](https://play.google.com/store/apps/details?id=com.ketchapp.stack) clone.
+> [Stack game](https://play.google.com/store/apps/details?id=com.ketchapp.stack) clone.
+
+Built with *Unity3D 2020.3.15f2* and *TextMesh Pro v3.0.6*.

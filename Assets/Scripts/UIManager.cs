@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour
     private RawImage shadow;
 
     [SerializeField] private TitleManager title;
+    [SerializeField] private ScoreManager score;
+
     [SerializeField] private TextMeshProUGUI ctaStart;
     [SerializeField] private TextMeshProUGUI ctaRestart;
 
@@ -98,11 +100,12 @@ public class UIManager : MonoBehaviour
     private IEnumerator ShowRestart()
     {
         yield return new WaitForSeconds(0.5f);
+
         shadow.CrossFadeAlpha(1.0f, 0.5f, false);
-
         StartCoroutine(FadeCTA(ctaRestart));
-        yield return new WaitForSeconds(0.5f);
+        score.ShowBest();
 
+        yield return new WaitForSeconds(0.5f);
         canvas.interactable = true;
         visibleRestart = true;
     }
@@ -115,6 +118,8 @@ public class UIManager : MonoBehaviour
 
         StartCoroutine(FadeCTA(ctaStart, false));
         yield return new WaitForSeconds(1.0f);
+
+        score.ShowCurrent();
         start.Invoke();
     }
 
@@ -128,6 +133,7 @@ public class UIManager : MonoBehaviour
 
         StartCoroutine(ShowStart(false));
         restart.Invoke();
+        score.Hide();
     }
 
     private IEnumerator FadeCTA(TextMeshProUGUI cta, bool visible = true, float duration = 0.5f)

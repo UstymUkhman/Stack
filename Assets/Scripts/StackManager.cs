@@ -22,6 +22,8 @@ public class StackManager : MonoBehaviour
     [SerializeField] private GameObject spherePrefab;
     [SerializeField] private GameObject planePrefab;
 
+    [SerializeField] private ScoreManager score;
+
     private Dynamic dynamicPlatformManager;
     private int perfectPlatformsCount = 0;
 
@@ -130,6 +132,7 @@ public class StackManager : MonoBehaviour
             return true;
         }
 
+        score.current++;
         return false;
     }
 
@@ -187,6 +190,7 @@ public class StackManager : MonoBehaviour
 
         dynamicPlatformManager = platform.GetComponent<Dynamic>();
         dynamicPlatformManager.y = Platforms * platformHeight;
+
         dynamicPlatformManager.SetDirection(isLeft);
         dynamicPlatformManager.offset = offset;
         dynamicPlatformManager.Move();
@@ -243,10 +247,7 @@ public class StackManager : MonoBehaviour
         Transform staticTransform = platforms[Platforms - 1].transform;
         int animatedPlanes = Mathf.Min(perfectPlatformsCount - 3, 5);
 
-        if (matched)
-        {
-            SpawnPlane(staticTransform, 0);
-        }
+        if (matched) SpawnPlane(staticTransform, 0);
 
         for (int p = 1; p <= animatedPlanes; p++)
         {
@@ -292,6 +293,8 @@ public class StackManager : MonoBehaviour
 
         cameraAnimation.Invoke(0, true, false);
         platform.SetActive(false);
+
+        score.current = 0;
         platforms.Clear();
     }
 }
