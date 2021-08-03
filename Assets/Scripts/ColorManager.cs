@@ -3,6 +3,8 @@ using UnityEngine;
 public static class ColorManager
 {
     public static readonly Color32 SOLID_WHITE = new Color32(255, 255, 255, 255);
+    public static readonly Color32 SEMI_WHITE  = new Color32(255, 255, 255, 102);
+
     public static readonly Color32 TRANSPARENT = new Color32(255, 255, 255, 0);
     public static readonly Color32 SOLID_BLACK = new Color32(0, 0, 0, 255);
 

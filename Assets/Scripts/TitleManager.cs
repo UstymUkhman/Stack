@@ -1,19 +1,19 @@
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
 public class TitleManager : MonoBehaviour
 {
+    private List<Text> titles = new List<Text>();
     private List<Vector2> initialPositions = new List<Vector2>();
-    private List<TextMeshProUGUI> titles = new List<TextMeshProUGUI>();
 
     private void Awake()
     {
         foreach (Transform child in transform)
         {
-            TextMeshProUGUI title = child.GetComponent<TextMeshProUGUI>();
-            RectTransform rect = title.transform.GetComponent<RectTransform>();
+            Text title = child.GetComponent<Text>();
+            RectTransform rect = title.GetComponent<RectTransform>();
 
             initialPositions.Add(rect.anchoredPosition * 0.5f);
             title.color = ColorManager.TRANSPARENT;
@@ -25,7 +25,7 @@ public class TitleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f);
 
-        foreach (TextMeshProUGUI title in titles)
+        foreach (Text title in titles)
         {
             StartCoroutine(Animate(title, true, 2.0f));
         }
@@ -35,7 +35,7 @@ public class TitleManager : MonoBehaviour
     {
         Reset();
 
-        foreach (TextMeshProUGUI title in titles)
+        foreach (Text title in titles)
         {
             StartCoroutine(Animate(title, true));
         }
@@ -43,7 +43,7 @@ public class TitleManager : MonoBehaviour
 
     public void FadeOut()
     {
-        foreach (TextMeshProUGUI title in titles)
+        foreach (Text title in titles)
         {
             StartCoroutine(Animate(title));
         }
@@ -53,36 +53,36 @@ public class TitleManager : MonoBehaviour
     {
         for (int t = 0; t < titles.Count; t++)
         {
-            Transform title = titles[t].transform;
+            Text title = titles[t];
             RectTransform rect = title.GetComponent<RectTransform>();
 
             rect.anchoredPosition = initialPositions[t];
-            titles[t].color = ColorManager.TRANSPARENT;
+            title.color = ColorManager.TRANSPARENT;
         }
     }
 
-    private IEnumerator Animate(TextMeshProUGUI title, bool visible = false, float duration = 0.5f)
+    private IEnumerator Animate(Text title, bool visible = false, float duration = 0.5f)
     {
         float startTime = Time.time;
         float endTime = Time.time + duration;
 
-        RectTransform transform = title.transform.GetComponent<RectTransform>();
-        Vector2 position = transform.anchoredPosition;
+        Color32 target = visible ? ColorManager.SEMI_WHITE : ColorManager.TRANSPARENT;
+        Color32 current = visible ? ColorManager.TRANSPARENT : ColorManager.SEMI_WHITE;
 
-        Color32 target = visible ? ColorManager.SOLID_WHITE : ColorManager.TRANSPARENT;
-        Color32 current = visible ? ColorManager.TRANSPARENT : ColorManager.SOLID_WHITE;
+        RectTransform rect = title.GetComponent<RectTransform>();
+        Vector2 position = rect.anchoredPosition;
 
         while (Time.time < endTime)
         {
             float time = (Time.time - startTime) / duration;
 
-            transform.anchoredPosition = Vector2.LerpUnclamped(position, Vector2.zero, time);
+            rect.anchoredPosition = Vector2.LerpUnclamped(position, Vector2.zero, time);
             title.color = Color32.Lerp(current, target, time);
 
             yield return null;
         }
 
-        transform.anchoredPosition = Vector2.zero;
+        rect.anchoredPosition = Vector2.zero;
         title.color = target;
     }
 }

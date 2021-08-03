@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -13,11 +12,11 @@ public class UIManager : MonoBehaviour
     private CanvasGroup canvas;
     private RawImage shadow;
 
+    [SerializeField] private Text ctaStart;
+    [SerializeField] private Text ctaRestart;
+
     [SerializeField] private TitleManager title;
     [SerializeField] private ScoreManager score;
-
-    [SerializeField] private TextMeshProUGUI ctaStart;
-    [SerializeField] private TextMeshProUGUI ctaRestart;
 
     [Header("On \"Tap To Start\" game event:")]
     [SerializeField] private UnityEvent start = new UnityEvent();
@@ -136,7 +135,7 @@ public class UIManager : MonoBehaviour
         score.Hide();
     }
 
-    private IEnumerator FadeCTA(TextMeshProUGUI cta, bool visible = true, float duration = 0.5f)
+    private IEnumerator FadeCTA(Text cta, bool visible = true, float duration = 0.5f)
     {
         float startTime = Time.time;
         float endTime = Time.time + duration;
