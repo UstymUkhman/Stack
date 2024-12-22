@@ -1,4 +1,4 @@
-# [Stack](http://35.158.218.205/experiments/Stack/)
+# [Stack](https://ustymukhman.github.io/Stack/Build/)
 
 > [Stack game](https://play.google.com/store/apps/details?id=com.ketchapp.stack) clone.
 
